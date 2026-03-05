@@ -5,8 +5,8 @@
 
 const ACCOUNTS = [
     { username: 'admin', password: 'admin123', role: 'Quản trị viên', avatar: '👑' },
-    { username: 'Đỗ Thị Nga', password: 'admin123', role: 'Đỗ Thị Nga', avatar: '💼' },
-    { username: 'Đỗ Văn Tăng', password: 'admin123', role: 'Đỗ Văn Tăng', avatar: '' },
+    { username: 'nga', password: 'admin123', role: 'Đỗ Thị Nga', avatar: '💼' },
+    { username: 'tang', password: 'admin123', role: 'Đỗ Văn Tăng', avatar: '' },
 ];
 
 const SESSION_KEY = 'ew_session';
