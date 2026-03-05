@@ -137,6 +137,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         AnnualModule.init();
     }
 
+    // Thanh Toán Lương (Payment) Page Context
+    if (document.getElementById('sec-payment')) {
+        PaymentModule.init();
+    }
+
 });
 
 // Inline keyframes for toast animation

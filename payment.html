@@ -367,8 +367,6 @@
                     class="nav-label">Thanh Toán</span></a>
         </div>
         <div class="sidebar-footer">
-            <div class="sidebar-footer-text mb-2"><i class="bi bi-hdd-fill"></i><span class="nav-label">Dữ liệu lưu trên
-                    máy</span></div>
             <button onclick="authLogout()" title="Đăng xuất"
                 style="width:100%;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:8px;padding:.45rem .5rem;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:background .2s">
                 <i class="bi bi-box-arrow-left"></i><span class="nav-label">Đăng xuất</span>
@@ -443,6 +441,7 @@
                                 <th>Công Nhân</th>
                                 <th><span class="badge" style="background:#dcfce7;color:#065f46">Kỳ 1</span></th>
                                 <th><span class="badge" style="background:#dbeafe;color:#1e40af">Kỳ 2</span></th>
+                                <th class="text-center text-nowrap">Tổng công</th>
                                 <th class="text-end">Tổng lương</th>
                                 <th class="text-end">Ứng tiền</th>
                                 <th class="text-end" style="color:#059669">Thực nhận</th>
@@ -593,7 +592,6 @@
     <script src="js/payment.js"></script>
     <script>
         AOS.init({ duration: 420, once: true, easing: 'ease-out-cubic' });
-        PaymentModule.init();
     </script>
     <!-- =====================================================
          PHIẾU LƯƠNG (chỉ hiện khi in)
@@ -644,6 +642,10 @@
 
             <!-- Summary -->
             <div class="slip-summary">
+                <div class="slip-row">
+                    <span class="text-muted">Tổng ngày công</span>
+                    <span class="fw-bold text-primary" id="slip-total-days">0</span>
+                </div>
                 <div class="slip-row">
                     <span class="text-muted">Tổng lương</span>
                     <span class="fw-semibold" id="slip-total"></span>

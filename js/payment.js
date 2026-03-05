@@ -295,12 +295,13 @@ const PaymentModule = (() => {
             return;
         }
 
-        let grandTotal = 0, grandAdv = 0, grandNet = 0;
+        let grandTotal = 0, grandAdv = 0, grandNet = 0, grandDays = 0;
         let html = '';
 
         yearRows.forEach((r, i) => {
             const realIdx = results.indexOf(r);
-            grandTotal += r.total; grandAdv += r.adv; grandNet += r.net;
+            const totalDays = (r.days1 || 0) + (r.days2 || 0);
+            grandTotal += r.total; grandAdv += r.adv; grandNet += r.net; grandDays += totalDays;
             const netCls = r.net >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold';
 
             const p1Label = r.p1months.map(m => 'Th.' + m).join(', ') || '—';
@@ -322,6 +323,7 @@ const PaymentModule = (() => {
                     <div>${fmtDay(r.days2)} công × ${fmtVnd(r.p2rate)}</div>
                     <div class="fw-semibold" style="color:#3b82f6">${fmtVnd(r.sal2)}</div>
                 </td>
+                <td class="text-center fw-bold text-primary">${fmtDay(totalDays)}</td>
                 <td class="text-end fw-semibold">${fmtVnd(r.total)}</td>
                 <td class="text-end text-danger">${r.adv > 0 ? fmtVnd(r.adv) : '—'}</td>
                 <td class="text-end ${netCls}">${fmtVnd(r.net)}</td>
@@ -338,6 +340,7 @@ const PaymentModule = (() => {
         html += `<tr class="table-dark fw-bold">
             <td colspan="2" class="text-center">TỔNG CỘNG</td>
             <td colspan="2"></td>
+            <td class="text-center">${fmtDay(grandDays)}</td>
             <td class="text-end">${fmtVnd(grandTotal)}</td>
             <td class="text-end text-warning">${fmtVnd(grandAdv)}</td>
             <td class="text-end text-success">${fmtVnd(grandNet)}</td>
@@ -445,6 +448,7 @@ const PaymentModule = (() => {
         if (p2Wrap) p2Wrap.style.display = r.p2months.length === 0 ? 'none' : '';
 
         // Summary
+        set('slip-total-days', fmtDay(r.days1 + r.days2) + ' công');
         set('slip-total', fmtVnd(r.total));
         set('slip-adv', r.adv > 0 ? fmtVnd(r.adv) : '—');
         set('slip-net', fmtVnd(r.net));
