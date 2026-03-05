@@ -42,6 +42,7 @@ const WorkersModule = (() => {
         <td><span class="worker-id-badge">${w.id}</span></td>
         <td><span class="fw-semibold">${w.hoTen}</span></td>
         <td class="d-none d-md-table-cell text-muted">${formatDate(w.ngaySinh) || '—'}</td>
+        <td class="d-none d-md-table-cell text-muted">${w.soDienThoai || '—'}</td>
         <td class="d-none d-md-table-cell">${w.phongBan || '—'}</td>
         <td class="d-none d-lg-table-cell text-muted">${w.chucVu || '—'}</td>
         <td class="d-flex text-center">

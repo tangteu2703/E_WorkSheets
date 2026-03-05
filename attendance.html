@@ -63,10 +63,7 @@
 
         <!-- Footer -->
         <div class="sidebar-footer">
-            <div class="sidebar-footer-text mb-2">
-                <i class="bi bi-hdd-fill"></i>
-                <span class="nav-label">Dữ liệu lưu trên máy</span>
-            </div>
+
             <button onclick="authLogout()" title="Đăng xuất" style="width:100%;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);
                        color:#fca5a5;border-radius:8px;padding:.45rem .5rem;
                        font-size:.78rem;font-weight:600;cursor:pointer;
@@ -238,9 +235,9 @@
     <!-- Auth -->
     <script src="js/auth.js"></script>
     <script>authGuard();</script>
-    <!-- Nguồn dữ liệu công nhân (sửa file này để thay đổi danh sách) -->
-    <script src="data/workers.js"></script>
     <!-- App scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/workers.js"></script>
     <script src="js/attendance.js"></script>

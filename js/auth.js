@@ -3,12 +3,7 @@
    Tài khoản định nghĩa ở đây chỉ dùng nội bộ / local.
    ================================================================ */
 
-const ACCOUNTS = [
-    { username: 'admin', password: 'admin123', role: 'Quản trị viên', avatar: '👑' },
-    { username: 'nga', password: 'admin123', role: 'Đỗ Thị Nga', avatar: '💼' },
-    { username: 'tang', password: 'admin123', role: 'Đỗ Văn Tăng', avatar: '' },
-];
-
+// ACCOUNTS array removed, user data now comes from Supabase 'accounts' table.
 const SESSION_KEY = 'ew_session';
 const TOKEN_KEY = 'ew_token';
 const TOKEN_TTL_MS = 8 * 60 * 60 * 1000; // 8 giờ
@@ -21,25 +16,42 @@ function _generateToken() {
 }
 
 /* ── Đăng nhập — trả về session hoặc null ── */
-function authLogin(username, password) {
-    const acc = ACCOUNTS.find(
-        a => a.username === username.trim() && a.password === password
-    );
-    if (!acc) return null;
+async function authLogin(username, password) {
+    if (!window.supabaseClient) {
+        console.error('Supabase client is not initialized.');
+        return null;
+    }
 
-    const token = _generateToken();
-    const session = {
-        username: acc.username,
-        role: acc.role,
-        avatar: acc.avatar,
-        token: token,
-        loginAt: Date.now(),
-        expiresAt: Date.now() + TOKEN_TTL_MS,
-    };
+    try {
+        const { data: acc, error } = await window.supabaseClient
+            .from('accounts')
+            .select('*')
+            .eq('username', username.trim())
+            .eq('password', password)
+            .single();
 
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    sessionStorage.setItem(TOKEN_KEY, token);
-    return session;
+        if (error || !acc) return null;
+
+        const token = _generateToken();
+        const session = {
+            username: acc.username,
+            role: acc.role,
+            avatar: acc.avatar,
+            fullname: acc.fullname,
+            email: acc.email,
+            phone: acc.phone,
+            token: token,
+            loginAt: Date.now(),
+            expiresAt: Date.now() + TOKEN_TTL_MS,
+        };
+
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        sessionStorage.setItem(TOKEN_KEY, token);
+        return session;
+    } catch (err) {
+        console.error('Error during login:', err);
+        return null;
+    }
 }
 
 /* ── Đăng xuất ── */

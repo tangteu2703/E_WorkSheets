@@ -425,6 +425,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Auth module -->
     <script src="js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/storage.js"></script>
 
     <script>
         /* Redirect if already logged in */
@@ -471,9 +474,8 @@
             document.getElementById('btnText').classList.add('d-none');
             document.getElementById('btnLoading').classList.remove('d-none');
 
-            await new Promise(r => setTimeout(r, 550));
-
-            const session = authLogin(username, password);
+            // Wait for DB response
+            const session = await authLogin(username, password);
             if (!session) {
                 btn.disabled = false;
                 document.getElementById('btnText').classList.remove('d-none');

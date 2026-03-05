@@ -56,7 +56,10 @@ function closeSidebarMobile() {
 /* ============================================================
    BOOTSTRAP / INIT
    ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Init Supabase Sync Cache
+    await StorageManager.initialize();
+
     // Sidebar toggle (mobile)
     document.getElementById('btn-toggle-sidebar')?.addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');

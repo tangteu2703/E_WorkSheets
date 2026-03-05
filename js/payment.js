@@ -39,7 +39,7 @@ const PaymentModule = (() => {
     function init() {
         // Load saved
         try { const s = JSON.parse(localStorage.getItem(CFG_KEY)); if (s) periodCfg = s; } catch { }
-        try { results = JSON.parse(localStorage.getItem(RESULTS_KEY)) || []; } catch { }
+        try { results = StorageManager.getPaymentResults() || []; } catch { }
 
         $('pay-year').value = currentYear;
         $('pay-year').addEventListener('change', e => {
@@ -261,7 +261,7 @@ const PaymentModule = (() => {
             if (targetIdx !== null) results[targetIdx] = entry;
             else results.push(entry);
 
-            localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+            StorageManager.savePaymentResults(results);
             bootstrap.Modal.getInstance($('payModal')).hide();
             renderTable();
         };
@@ -376,7 +376,7 @@ const PaymentModule = (() => {
             okClass: 'btn-danger',
             onOk: () => {
                 results.splice(idx, 1);
-                localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+                StorageManager.savePaymentResults(results);
                 renderTable();
             },
         });
@@ -391,7 +391,7 @@ const PaymentModule = (() => {
             okClass: 'btn-danger',
             onOk: () => {
                 results = [];
-                localStorage.removeItem(RESULTS_KEY);
+                StorageManager.clearPaymentResults();
                 renderTable();
             },
         });
@@ -450,63 +450,12 @@ const PaymentModule = (() => {
         set('slip-net', fmtVnd(r.net));
         set('slip-words', numToWords(Math.round(r.net)));
 
-        // Print via iframe for better mobile support
-        const printArea = document.getElementById('slip-print-area').innerHTML;
-        const styleLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-            .map(link => link.outerHTML)
-            .join('');
-        const inlineStyles = Array.from(document.querySelectorAll('style'))
-            .map(style => style.outerHTML)
-            .join('');
-
-        const printWin = document.createElement('iframe');
-        printWin.style.position = 'absolute';
-        printWin.style.top = '-1000px';
-        printWin.style.left = '-1000px';
-        printWin.style.width = '100%';
-        printWin.style.height = '100%';
-        document.body.appendChild(printWin);
-
-        const printDoc = printWin.contentWindow.document;
-        printDoc.open();
-        printDoc.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>In Phiếu Lương</title>
-                ${styleLinks}
-                ${inlineStyles}
-                <style>
-                    body { 
-                        background: #fff; 
-                        margin: 0; 
-                        padding: 1.5rem;
-                        display: flex;
-                        justify-content: center;
-                    }
-                    .slip-wrap { box-shadow: none !important; width: 100%; max-width: 680px; }
-                </style>
-            </head>
-            <body>
-                ${printArea}
-                <script>
-                    window.onload = function() {
-                        setTimeout(function() {
-                            window.print();
-                        }, 500);
-                    };
-                <\/script>
-            </body>
-            </html>
-        `);
-        printDoc.close();
-
-        // Cleanup iframe after print dialog closes (approximate)
-        setTimeout(() => {
-            if (printWin && printWin.parentNode) {
-                printWin.parentNode.removeChild(printWin);
-            }
-        }, 10000); // Wait 10s before removing just in case
+        // Print
+        document.body.classList.add('printing-slip');
+        window.print();
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('printing-slip');
+        }, { once: true });
     }
 
     /* ───────────────── HELPERS ───────────────── */
