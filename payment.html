@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thanh Toán Lương — Phần mềm Tính Công</title>
+    <meta name="description" content="Tính lương 2 kỳ và thanh toán cho công nhân" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        /* ── Month chips ── */
+        .month-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .3rem;
+        }
+
+        .month-chip {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 38px;
+            padding: .25rem .45rem .2rem;
+            border-radius: 8px;
+            font-size: .74rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1.5px solid #e2e8f0;
+            user-select: none;
+            transition: all .15s;
+            line-height: 1.2;
+        }
+
+        .month-chip:hover {
+            border-color: #94a3b8;
+            background: #e2e8f0;
+        }
+
+        .month-chip .chip-days {
+            font-size: .62rem;
+            font-weight: 700;
+            margin-top: 2px;
+            opacity: .75;
+            line-height: 1;
+        }
+
+        #modal-chips-p1 .month-chip.active {
+            background: #059669;
+            color: #fff;
+            border-color: transparent;
+        }
+
+        #modal-chips-p2 .month-chip.active {
+            background: #3b82f6;
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .month-chip.active .chip-days {
+            opacity: .9;
+        }
+
+        .month-chip:not(.active) .chip-days {
+            color: #94a3b8;
+        }
+
+        /* ── Period rows ── */
+        .period-row {
+            border-radius: 12px;
+            padding: .65rem 1rem;
+        }
+
+        .period-row.p1 {
+            background: rgba(5, 150, 105, .06);
+            border: 1.5px solid rgba(5, 150, 105, .25);
+        }
+
+        .period-row.p2 {
+            background: rgba(59, 130, 246, .06);
+            border: 1.5px solid rgba(59, 130, 246, .25);
+        }
+
+        /* ── Inline result ── */
+        .period-result {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .82rem;
+            white-space: nowrap;
+        }
+
+        .period-result .res-money {
+            font-weight: 700;
+            font-size: .95rem;
+        }
+
+        /* ── Payslip (phiếu lương) design ── */
+        #slip-print-area {
+            display: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .slip-wrap {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, .12);
+            position: relative;
+        }
+
+        /* Watermark */
+        .slip-wrap::after {
+            content: '03.TANG';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: .15em;
+            color: rgba(5, 150, 105, .07);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .slip-header {
+            background: linear-gradient(135deg, #047857 0%, #0891b2 100%);
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slip-header .slip-title h2 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .slip-header .slip-title p {
+            margin: 0;
+            font-size: .78rem;
+            opacity: .8;
+        }
+
+        .slip-worker {
+            padding: 1rem 1.5rem .5rem;
+        }
+
+        .slip-worker-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .slip-worker-meta {
+            font-size: .78rem;
+            color: #64748b;
+        }
+
+        .slip-period {
+            margin: .5rem 1.5rem;
+            border-radius: 10px;
+            padding: .7rem 1rem;
+        }
+
+        .slip-period.p1 {
+            background: rgba(5, 150, 105, .07);
+            border: 1.5px solid rgba(5, 150, 105, .3);
+        }
+
+        .slip-period.p2 {
+            background: rgba(59, 130, 246, .07);
+            border: 1.5px solid rgba(59, 130, 246, .3);
+        }
+
+        .slip-period-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: .82rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .slip-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .25rem;
+        }
+
+        .slip-chip {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 36px;
+            padding: .2rem .4rem;
+            border-radius: 6px;
+            font-size: .7rem;
+            font-weight: 700;
+            line-height: 1.2;
+            border: 2px solid transparent;
+        }
+
+        .slip-chip.active.p1 {
+            color: #047857;
+            border-color: #059669;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .slip-chip.active.p2 {
+            color: #1d4ed8;
+            border-color: #3b82f6;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .slip-chip.inactive {
+            color: #cbd5e1;
+            border: 1.5px dashed #e2e8f0;
+            font-weight: 500;
+        }
+
+        .slip-chip .sc-days {
+            font-size: .6rem;
+            opacity: .85;
+        }
+
+        .slip-summary {
+            padding: .75rem 1.5rem 1rem;
+            font-size: .88rem;
+        }
+
+        .slip-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .35rem 0;
+        }
+
+        .slip-row.total-row {
+            border-top: 2px solid #e2e8f0;
+            margin-top: .25rem;
+            padding-top: .5rem;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .slip-words {
+            font-size: .72rem;
+            color: #64748b;
+            font-style: italic;
+            text-align: right;
+            margin-top: .15rem;
+        }
+
+        .slip-sign {
+            display: flex;
+            gap: 2rem;
+            padding: .75rem 1.5rem 1.25rem;
+            border-top: 1px solid #f1f5f9;
+            font-size: .78rem;
+            color: #94a3b8;
+        }
+
+        .slip-sign-box {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slip-sign-label {
+            font-size: .72rem;
+            color: #94a3b8;
+            margin-bottom: .5rem;
+        }
+
+        .slip-sign-space {
+            flex: 1;
+            min-height: 3rem;
+            border-bottom: 1px dashed #cbd5e1;
+            margin-bottom: .4rem;
+        }
+
+        .slip-sign-name {
+            font-size: .82rem;
+            font-weight: 700;
+            color: #0f172a;
+            min-height: 1.1rem;
+        }
+
+        /* ── Print ── */
+        @media print {
+
+            /* Normal page print (not slip) */
+            body:not(.printing-slip) #sidebar,
+            body:not(.printing-slip) #sidebar-overlay,
+            body:not(.printing-slip) .no-print {
+                display: none !important;
+            }
+
+            body:not(.printing-slip) #main-content {
+                margin-left: 0 !important;
+                padding: .5rem !important;
+            }
+
+            /* Slip print: hide everything except slip */
+            body.printing-slip #sidebar,
+            body.printing-slip #sidebar-overlay,
+            body.printing-slip #main-content,
+            body.printing-slip .modal,
+            body.printing-slip #toast-container {
+                display: none !important;
+            }
+
+            body.printing-slip #slip-print-area {
+                display: block !important;
+                position: fixed;
+                inset: 0;
+                background: #fff;
+                z-index: 9999;
+                padding: 1.5rem;
+            }
+
+            body.printing-slip .slip-wrap {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+        <div class="sidebar-brand">
+            <video src="img/logo_03tang.mp4" autoplay loop muted playsinline
+                style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0;filter:drop-shadow(0 3px 8px rgba(245,158,11,.5))"></video>
+            <span class="sidebar-brand-text">PHẦN MỀM<br>TÍNH CÔNG</span>
+            <button id="btn-collapse-sidebar" title="Thu gọn"><i class="bi bi-layout-sidebar-reverse"></i></button>
+        </div>
+        <div class="px-1 mt-1">
+            <div class="sidebar-section-label">Quản lý</div>
+            <a href="workers.html" class="nav-link-tc" title="Công Nhân"><i class="bi bi-people-fill"></i><span
+                    class="nav-label">Công Nhân</span></a>
+            <a href="attendance.html" class="nav-link-tc" title="Bảng Công Tháng"><i class="bi bi-calendar3"></i><span
+                    class="nav-label">Bảng Công Tháng</span></a>
+            <a href="advances.html" class="nav-link-tc" title="Ứng Tiền"><i class="bi bi-cash-stack"></i><span
+                    class="nav-label">Ứng Tiền</span></a>
+            <a href="annual.html" class="nav-link-tc" title="Tổng Hợp Năm"><i class="bi bi-bar-chart-fill"></i><span
+                    class="nav-label">Tổng Hợp Năm</span></a>
+            <a href="payment.html" class="nav-link-tc active" title="Thanh Toán"><i class="bi bi-wallet2"></i><span
+                    class="nav-label">Thanh Toán</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-text mb-2"><i class="bi bi-hdd-fill"></i><span class="nav-label">Dữ liệu lưu trên
+                    máy</span></div>
+            <button onclick="authLogout()" title="Đăng xuất"
+                style="width:100%;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:8px;padding:.45rem .5rem;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:background .2s">
+                <i class="bi bi-box-arrow-left"></i><span class="nav-label">Đăng xuất</span>
+            </button>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- MAIN -->
+    <div id="main-content">
+        <div id="toast-container" class="tc-toast-box"></div>
+
+        <section id="sec-payment">
+
+            <!-- Header -->
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                <div data-aos="fade-right">
+                    <h2 class="page-title"><i class="bi bi-wallet2"></i>Thanh Toán Lương</h2>
+                    <p class="page-subtitle mb-0">Tính lương, trừ ứng tiền, lưu kết quả</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 no-print" data-aos="fade-left">
+                    <div class="d-flex align-items-center gap-2 me-2">
+                        <label class="fw-semibold small text-muted mb-0">Năm</label>
+                        <input id="pay-year" type="number" class="form-control form-control-sm" style="width:90px"
+                            min="2020" max="2099" />
+                    </div>
+                    <button id="pay-btn-open" class="btn btn-primary d-flex align-items-center gap-2 px-4">
+                        <i class="bi bi-plus-lg"></i> Tính lương
+                    </button>
+                    <button id="pay-btn-print" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3">
+                        <i class="bi bi-printer-fill"></i> In
+                    </button>
+                    <button id="pay-btn-clear" class="btn btn-outline-danger d-flex align-items-center gap-1 px-3">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div id="pay-summary"></div>
+
+            <!-- Results Table -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-2 px-4 gap-3">
+                    <span class="fw-bold text-primary d-flex align-items-center gap-2"><i class="bi bi-table"></i>Bảng
+                        lương</span>
+                    <div class="d-flex align-items-center gap-3 flex-grow-1 justify-content-end">
+                        <div class="position-relative" style="max-width:250px; flex:1">
+                            <i class="bi bi-search position-absolute text-muted"
+                                style="left:10px;top:50%;transform:translateY(-50%);font-size:.85rem"></i>
+                            <input type="text" id="pay-search" class="form-control form-control-sm ps-4"
+                                placeholder="Tìm tên, mã nhân viên...">
+                        </div>
+                        <span class="text-muted small" id="pay-year-label"></span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:40px">#</th>
+                                <th>Công Nhân</th>
+                                <th><span class="badge" style="background:#dcfce7;color:#065f46">Kỳ 1</span></th>
+                                <th><span class="badge" style="background:#dbeafe;color:#1e40af">Kỳ 2</span></th>
+                                <th class="text-end">Tổng lương</th>
+                                <th class="text-end">Ứng tiền</th>
+                                <th class="text-end" style="color:#059669">Thực nhận</th>
+                                <th class="no-print" style="width:80px">Chức năng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pay-tbody">
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="bi bi-wallet2 d-block fs-2 mb-2 opacity-50"></i>
+                                    Nhấn <strong>Tính lương</strong> để thêm
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <!-- ============================================================
+         MODAL: Tính lương
+         ============================================================ -->
+    <div class="modal fade" id="payModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header text-white">
+                    <h5 class="modal-title"><i class="bi bi-calculator-fill me-2"></i>Tính lương</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body px-4 py-3">
+
+                    <!-- Worker + year row -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-8">
+                            <label class="form-label fw-semibold small">Công nhân <span
+                                    class="text-danger">*</span></label>
+                            <select id="modal-worker" class="form-select form-select-sm"></select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label fw-semibold small">Năm</label>
+                            <input id="modal-year" type="number" class="form-control form-control-sm" min="2020"
+                                max="2099" />
+                        </div>
+                    </div>
+
+                    <!-- Kỳ 1 -->
+                    <div id="period-row-1" class="period-row p1 mb-2">
+                        <!-- Header: label + rate input + result — 1 line -->
+                        <div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
+                            <span class="fw-bold text-nowrap" style="color:#059669;font-size:.8rem">
+                                <i class="bi bi-1-circle-fill me-1"></i>Kỳ 1
+                            </span>
+                            <div class="input-group input-group-sm" style="max-width:190px">
+                                <span class="input-group-text" style="font-size:.72rem">Đơn giá/công</span>
+                                <input id="modal-rate1" type="text" class="form-control" placeholder="400.000" />
+                            </div>
+                            <div class="period-result ms-auto">
+                                <span class="text-muted">x</span>
+                                <span class="text-muted" id="modal-days1">0 công</span>
+                                <span class="text-muted">=</span>
+                                <span class="res-money" style="color:#059669" id="modal-money1">0 đ</span>
+                            </div>
+                        </div>
+                        <!-- Chips with per-month days -->
+                        <div class="month-chips" id="modal-chips-p1"></div>
+                    </div>
+
+                    <!-- Kỳ 2 -->
+                    <div id="period-row-2" class="period-row p2 mb-3">
+                        <div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
+                            <span class="fw-bold text-nowrap" style="color:#3b82f6;font-size:.8rem">
+                                <i class="bi bi-2-circle-fill me-1"></i>Kỳ 2
+                            </span>
+                            <div class="input-group input-group-sm" style="max-width:190px">
+                                <span class="input-group-text" style="font-size:.72rem">Đơn giá/công</span>
+                                <input id="modal-rate2" type="text" class="form-control" placeholder="420.000" />
+                            </div>
+                            <div class="period-result ms-auto">
+                                <span class="text-muted">x</span>
+                                <span class="text-muted" id="modal-days2">0 công</span>
+                                <span class="text-muted">=</span>
+                                <span class="res-money" style="color:#3b82f6" id="modal-money2">0 đ</span>
+                            </div>
+                        </div>
+                        <div class="month-chips" id="modal-chips-p2"></div>
+                    </div>
+                    <!-- Tổng kết -->
+                    <div class="mt-2 pt-2 border-top" style="font-size:.88rem">
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <span class="text-muted">Tổng lương</span>
+                            <span class="fw-bold" id="modal-total">0 đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <span class="text-muted">Ứng tiền</span>
+                            <span class="fw-semibold text-danger" id="modal-adv">—</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1 border-top mt-1">
+                            <span class="fw-bold">Thực nhận</span>
+                            <span class="fw-bold fs-5 text-success" id="modal-net">0 đ</span>
+                        </div>
+                        <div class="text-end fst-italic text-muted mt-1" style="font-size:.75rem" id="modal-net-words">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer px-4">
+                    <button class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Hủy</button>
+                    <button id="modal-btn-save" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-floppy-fill"></i> Lưu vào bảng
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Confirm Modal ── -->
+    <div class="modal fade" id="pay-confirm-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden">
+                <div class="modal-body text-center p-4">
+                    <div id="pcm-icon" style="font-size:2.5rem;line-height:1;margin-bottom:.75rem"></div>
+                    <div id="pcm-title" class="fw-bold fs-6 mb-1"></div>
+                    <div id="pcm-msg" class="text-muted small"></div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pb-4 pt-0 gap-2">
+                    <button class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button id="pcm-ok" class="btn px-4 fw-semibold"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="js/auth.js"></script>
+    <script>authGuard();</script>
+    <script src="data/workers.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/payment.js"></script>
+    <script>
+        AOS.init({ duration: 420, once: true, easing: 'ease-out-cubic' });
+        PaymentModule.init();
+    </script>
+    <!-- =====================================================
+         PHIẾU LƯƠNG (chỉ hiện khi in)
+         ===================================================== -->
+    <div id="slip-print-area">
+        <div class="slip-wrap">
+            <!-- Header -->
+            <div class="slip-header">
+                <div>
+                    <div
+                        style="width:44px;height:44px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-wallet2" style="font-size:1.3rem;color:#fff"></i>
+                    </div>
+                </div>
+                <div class="slip-title flex-grow-1">
+                    <h2>PHIẾU LƯƠNG</h2>
+                    <p id="slip-period-label">Năm 2026</p>
+                </div>
+                <div style="text-align:right;font-size:.78rem;opacity:.85">
+                    <div id="slip-date"></div>
+                    <div style="opacity:.7">Phần mềm Tính Công</div>
+                </div>
+            </div>
+
+            <!-- Worker info -->
+            <div class="slip-worker">
+                <div class="slip-worker-name" id="slip-worker-name">—</div>
+                <div class="slip-worker-meta" id="slip-worker-meta">—</div>
+            </div>
+
+            <!-- Period 1 -->
+            <div class="slip-period p1" id="slip-p1-wrap">
+                <div class="slip-period-header">
+                    <span style="color:#059669"><i class="bi bi-1-circle-fill me-1"></i>Kỳ 1</span>
+                    <span id="slip-p1-result" style="color:#059669"></span>
+                </div>
+                <div class="slip-chips" id="slip-chips-p1"></div>
+            </div>
+
+            <!-- Period 2 -->
+            <div class="slip-period p2" id="slip-p2-wrap">
+                <div class="slip-period-header">
+                    <span style="color:#3b82f6"><i class="bi bi-2-circle-fill me-1"></i>Kỳ 2</span>
+                    <span id="slip-p2-result" style="color:#3b82f6"></span>
+                </div>
+                <div class="slip-chips" id="slip-chips-p2"></div>
+            </div>
+
+            <!-- Summary -->
+            <div class="slip-summary">
+                <div class="slip-row">
+                    <span class="text-muted">Tổng lương</span>
+                    <span class="fw-semibold" id="slip-total"></span>
+                </div>
+                <div class="slip-row">
+                    <span class="text-muted">Ứng tiền</span>
+                    <span class="fw-semibold text-danger" id="slip-adv"></span>
+                </div>
+                <div class="slip-row total-row">
+                    <span>Thực nhận</span>
+                    <span class="text-success" id="slip-net"></span>
+                </div>
+                <div class="slip-words" id="slip-words"></div>
+            </div>
+
+            <!-- Signatures -->
+            <div class="slip-sign">
+                <div class="slip-sign-box">
+                    <div class="slip-sign-label">Người lập phiếu</div>
+                    <div class="slip-sign-space"></div>
+                    <div class="slip-sign-name" id="slip-creator-name"></div>
+                </div>
+                <div class="slip-sign-box">
+                    <div class="slip-sign-label">Kế toán</div>
+                    <div class="slip-sign-space"></div>
+                    <div class="slip-sign-name"></div>
+                </div>
+                <div class="slip-sign-box">
+                    <div class="slip-sign-label">Người nhận</div>
+                    <div class="slip-sign-space"></div>
+                    <div class="slip-sign-name"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
