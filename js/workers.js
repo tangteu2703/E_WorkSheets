@@ -18,6 +18,7 @@ const WorkersModule = (() => {
     /* ---- Render ---- */
     function renderTable() {
         const tbody = $('wk-tbody');
+        const mobileList = $('wk-mobile-list');
         const active = workers.filter(w => w.trangThai === 'active');
         const filtered = workers.filter(w => {
             const q = searchQuery.toLowerCase();
@@ -32,10 +33,13 @@ const WorkersModule = (() => {
         $('wk-stat-depts').textContent = [...new Set(workers.map(w => w.phongBan).filter(Boolean))].length;
 
         if (!filtered.length) {
-            tbody.innerHTML = `<tr class="no-data-row"><td colspan="7"><i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.3"></i>Không có dữ liệu</td></tr>`;
+            const emptyHtml = `<div class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>Không có dữ liệu</div>`;
+            tbody.innerHTML = `<tr><td colspan="8">${emptyHtml}</td></tr>`;
+            mobileList.innerHTML = emptyHtml;
             return;
         }
 
+        // Desktop Table
         tbody.innerHTML = filtered.map((w, i) => `
       <tr>
         <td class="text-muted" style="font-size:.8rem">${i + 1}</td>
@@ -50,6 +54,43 @@ const WorkersModule = (() => {
           <button class="btn-action-lux delete ms-1" onclick="WorkersModule.confirmDelete('${w.id}')" title="Xóa"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
+    `).join('');
+
+        // Mobile Cards (Bootstrap Classes Only)
+        mobileList.innerHTML = filtered.map((w, i) => `
+      <div class="card mb-2 shadow-sm border-0 rounded-3">
+        <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="badge bg-light text-primary border mb-1">${w.id}</span>
+                    <h6 class="mb-0 fw-bold text-dark">${w.hoTen}</h6>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-light text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px" onclick="WorkersModule.openEdit('${w.id}')"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-light text-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px" onclick="WorkersModule.confirmDelete('${w.id}')"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
+            
+            <div class="row g-2 text-muted small mt-2">
+                <div class="col-6 d-flex align-items-center gap-2">
+                    <i class="bi bi-telephone text-secondary"></i>
+                    <span>${w.soDienThoai || '—'}</span>
+                </div>
+                <div class="col-6 d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar3 text-secondary"></i>
+                    <span>${formatDate(w.ngaySinh) || '—'}</span>
+                </div>
+                <div class="col-6 d-flex align-items-center gap-2">
+                    <i class="bi bi-diagram-3 text-secondary"></i>
+                    <span class="text-truncate">${w.phongBan || '—'}</span>
+                </div>
+                <div class="col-6 d-flex align-items-center gap-2">
+                    <i class="bi bi-person-badge text-secondary"></i>
+                    <span class="text-truncate">${w.chucVu || '—'}</span>
+                </div>
+            </div>
+        </div>
+      </div>
     `).join('');
     }
 

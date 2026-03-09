@@ -101,25 +101,26 @@
        ================================================== -->
         <section id="sec-workers">
 
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4">
                 <div data-aos="fade-right">
                     <h2 class="page-title"><i class="bi bi-people-fill"></i>Quản Lý Công Nhân</h2>
                     <p class="page-subtitle mb-0">Danh sách công nhân trong đội</p>
                 </div>
-                <button id="wk-btn-add" class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2"
+                <button id="wk-btn-add"
+                    class="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2"
                     data-aos="fade-left">
                     <i class="bi bi-plus-lg"></i> Thêm Công Nhân
                 </button>
             </div>
 
             <!-- Stats -->
-            <div class="row g-3 mb-4">
+            <div class="row g-2 g-md-3 mb-4">
                 <div class="col-6 col-md-4" data-aos="fade-up" data-aos-delay="0">
                     <div class="stat-card-lux blue">
                         <div class="stat-icon-lux blue"><i class="bi bi-people-fill"></i></div>
                         <div>
                             <div class="stat-value-lux" id="wk-stat-total">0</div>
-                            <div class="stat-label-lux">Tổng công nhân</div>
+                            <div class="stat-label-lux text-truncate">Tổng số</div>
                         </div>
                     </div>
                 </div>
@@ -128,11 +129,11 @@
                         <div class="stat-icon-lux green"><i class="bi bi-person-check-fill"></i></div>
                         <div>
                             <div class="stat-value-lux" id="wk-stat-active" style="color:#12b76a">0</div>
-                            <div class="stat-label-lux">Đang làm việc</div>
+                            <div class="stat-label-lux text-truncate">Đang làm</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-4" data-aos="fade-up" data-aos-delay="120">
+                <div class="col-12 col-md-4" data-aos="fade-up" data-aos-delay="120">
                     <div class="stat-card-lux purple">
                         <div class="stat-icon-lux purple"><i class="bi bi-diagram-3-fill"></i></div>
                         <div>
@@ -146,19 +147,21 @@
             <!-- Table card -->
             <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-delay="80">
                 <div
-                    class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-2 py-3 px-4">
+                    class="card-header bg-white d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 py-3 px-3 px-md-4">
                     <span class="fw-bold text-primary d-flex align-items-center gap-2">
                         <i class="bi bi-table"></i> Danh sách
                     </span>
-                    <div class="input-group input-group-sm" style="max-width:230px">
+                    <div class="search-box-ux input-group input-group-sm">
                         <span class="input-group-text bg-white border-end-0">
                             <i class="bi bi-search text-muted"></i>
                         </span>
                         <input id="wk-search" type="text" class="form-control border-start-0 ps-0"
-                            placeholder="Tìm kiếm..." />
+                            placeholder="Tìm kiếm công nhân..." />
                     </div>
                 </div>
-                <div class="table-responsive">
+
+                <!-- Desktop Table -->
+                <div class="table-responsive d-none d-lg-block">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
@@ -178,6 +181,12 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile List -->
+                <div id="wk-mobile-list" class="d-lg-none d-flex flex-column p-2 p-md-3"
+                    style="background-color: #f8fafb; min-height: 200px;">
+                    <div class="text-center text-muted py-4">Đang tải...</div>
                 </div>
             </div>
         </section> <!-- End Workers Section -->

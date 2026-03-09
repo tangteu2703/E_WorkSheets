@@ -397,19 +397,22 @@
                     <h2 class="page-title"><i class="bi bi-wallet2"></i>Thanh Toán Lương</h2>
                     <p class="page-subtitle mb-0">Tính lương, trừ ứng tiền, lưu kết quả</p>
                 </div>
-                <div class="d-flex align-items-center gap-2 no-print" data-aos="fade-left">
-                    <div class="d-flex align-items-center gap-2 me-2">
+                <div class="d-flex align-items-center gap-2 no-print pay-actions-top" data-aos="fade-left">
+                    <div class="d-flex align-items-center gap-2 pay-actions-year">
                         <label class="fw-semibold small text-muted mb-0">Năm</label>
                         <input id="pay-year" type="number" class="form-control form-control-sm" style="width:90px"
                             min="2020" max="2099" />
                     </div>
-                    <button id="pay-btn-open" class="btn btn-primary d-flex align-items-center gap-2 px-4">
+                    <button id="pay-btn-open"
+                        class="btn btn-primary d-flex align-items-center justify-content-center gap-2 px-4">
                         <i class="bi bi-plus-lg"></i> Tính lương
                     </button>
-                    <button id="pay-btn-print" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3">
+                    <button id="pay-btn-print"
+                        class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 px-3">
                         <i class="bi bi-printer-fill"></i> In
                     </button>
-                    <button id="pay-btn-clear" class="btn btn-outline-danger d-flex align-items-center gap-1 px-3">
+                    <button id="pay-btn-clear"
+                        class="btn btn-outline-danger d-flex align-items-center justify-content-center gap-1 px-3">
                         <i class="bi bi-trash3"></i>
                     </button>
                 </div>
@@ -420,20 +423,19 @@
 
             <!-- Results Table -->
             <div class="card border-0 shadow-sm" data-aos="fade-up">
-                <div class="card-header bg-white d-flex align-items-center justify-content-between py-2 px-4 gap-3">
-                    <span class="fw-bold text-primary d-flex align-items-center gap-2"><i class="bi bi-table"></i>Bảng
-                        lương</span>
-                    <div class="d-flex align-items-center gap-3 flex-grow-1 justify-content-end">
-                        <div class="position-relative" style="max-width:250px; flex:1">
-                            <i class="bi bi-search position-absolute text-muted"
-                                style="left:10px;top:50%;transform:translateY(-50%);font-size:.85rem"></i>
-                            <input type="text" id="pay-search" class="form-control form-control-sm ps-4"
-                                placeholder="Tìm tên, mã nhân viên...">
-                        </div>
-                        <span class="text-muted small" id="pay-year-label"></span>
+                <div
+                    class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-3 py-3 px-3 px-md-4">
+                    <span class="fw-bold text-primary d-flex align-items-center gap-2 text-nowrap"><i
+                            class="bi bi-table"></i>Bảng lương</span>
+                    <div class="position-relative search-box-ux w-100 w-md-auto ms-md-auto" style="max-width:250px;">
+                        <i class="bi bi-search position-absolute text-muted"
+                            style="left:10px;top:50%;transform:translateY(-50%);font-size:.85rem"></i>
+                        <input type="text" id="pay-search" class="form-control form-control-sm ps-4"
+                            placeholder="Tìm kiếm...">
                     </div>
                 </div>
-                <div class="table-responsive">
+                <!-- Desktop Table -->
+                <div class="table-responsive d-none d-lg-block">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
@@ -450,13 +452,21 @@
                         </thead>
                         <tbody id="pay-tbody">
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-5">
+                                <td colspan="9" class="text-center text-muted py-5">
                                     <i class="bi bi-wallet2 d-block fs-2 mb-2 opacity-50"></i>
                                     Nhấn <strong>Tính lương</strong> để thêm
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile List (Grid Cards) -->
+                <div id="pay-mobile-list" class="d-lg-none p-3 pb-2 d-flex flex-column gap-3">
+                    <div class="text-center text-muted py-4 small">
+                        <i class="bi bi-wallet2 d-block fs-2 mb-2 opacity-50"></i>
+                        Nhấn <strong>Tính lương</strong> để thêm
+                    </div>
                 </div>
             </div>
 

@@ -101,15 +101,17 @@
        ================================================== -->
         <section id="sec-annual">
 
-            <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
                 <div data-aos="fade-right">
                     <h2 class="page-title"><i class="bi bi-bar-chart-fill"></i>Tổng Hợp Theo Năm</h2>
                     <p class="page-subtitle mb-0">Tổng ngày công cả năm từng công nhân</p>
                 </div>
-                <div class="d-flex align-items-center gap-2" data-aos="fade-left">
+                <!-- Box Năm nằm trên cùng một dòng ở laptop, rớt dòng và full chiều rộng ở di động -->
+                <div class="d-flex align-items-center gap-2 w-100 w-sm-auto justify-content-start justify-content-sm-end"
+                    data-aos="fade-left">
                     <label class="fw-semibold small text-muted mb-0">Năm</label>
-                    <input id="ann-year" type="number" class="form-control form-control-sm" style="width:95px"
-                        min="2020" max="2099" />
+                    <input id="ann-year" type="number" class="form-control form-control-sm w-100 w-sm-auto"
+                        style="max-width:120px" min="2020" max="2099" />
                 </div>
             </div>
 
@@ -148,28 +150,28 @@
             <div class="row g-3">
                 <div class="col-12" data-aos="fade-up" data-aos-delay="100">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white fw-bold text-primary small py-2 px-4">
+                        <div class="card-header bg-white fw-bold text-primary small py-2 px-3 px-md-4">
                             <i class="bi bi-table me-1"></i>Chi tiết công theo năm
                         </div>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered align-middle mb-0" style="font-size:.78rem">
-                                <thead>
+                                <thead style="white-space:nowrap;">
                                     <tr>
-                                        <th style="width:30px">#</th>
-                                        <th>Công Nhân</th>
-                                        <th class="text-center">Th.1</th>
-                                        <th class="text-center">Th.2</th>
-                                        <th class="text-center">Th.3</th>
-                                        <th class="text-center">Th.4</th>
-                                        <th class="text-center">Th.5</th>
-                                        <th class="text-center">Th.6</th>
-                                        <th class="text-center">Th.7</th>
-                                        <th class="text-center">Th.8</th>
-                                        <th class="text-center">Th.9</th>
-                                        <th class="text-center">Th.10</th>
-                                        <th class="text-center">Th.11</th>
-                                        <th class="text-center">Th.12</th>
-                                        <th class="text-center yc-total">Tổng</th>
+                                        <th style="width:30px;min-width:30px;" class="text-center">#</th>
+                                        <th style="min-width:130px;">Công Nhân</th>
+                                        <th class="text-center" style="min-width:40px;">Th.1</th>
+                                        <th class="text-center" style="min-width:40px;">Th.2</th>
+                                        <th class="text-center" style="min-width:40px;">Th.3</th>
+                                        <th class="text-center" style="min-width:40px;">Th.4</th>
+                                        <th class="text-center" style="min-width:40px;">Th.5</th>
+                                        <th class="text-center" style="min-width:40px;">Th.6</th>
+                                        <th class="text-center" style="min-width:40px;">Th.7</th>
+                                        <th class="text-center" style="min-width:40px;">Th.8</th>
+                                        <th class="text-center" style="min-width:40px;">Th.9</th>
+                                        <th class="text-center" style="min-width:40px;">Th.10</th>
+                                        <th class="text-center" style="min-width:40px;">Th.11</th>
+                                        <th class="text-center" style="min-width:40px;">Th.12</th>
+                                        <th class="text-center yc-total" style="min-width:50px;">Tổng</th>
                                     </tr>
                                 </thead>
                                 <tbody id="ann-tbody">
@@ -179,7 +181,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="card-footer bg-white d-flex flex-wrap gap-2 py-2 px-4">
+                        <div class="card-footer bg-white d-flex flex-wrap gap-2 py-2 px-3 px-md-4">
                             <span class="badge yc-high">≥ 90% công</span>
                             <span class="badge yc-mid">60 – 89%</span>
                             <span class="badge yc-low">1 – 59%</span>

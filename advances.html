@@ -105,7 +105,8 @@
                     <h2 class="page-title"><i class="bi bi-cash-stack"></i>Quản Lý Ứng Tiền</h2>
                     <p class="page-subtitle mb-0">Theo dõi tạm ứng công nhân</p>
                 </div>
-                <button id="adv-btn-add" class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2"
+                <button id="adv-btn-add"
+                    class="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2"
                     data-aos="fade-left">
                     <i class="bi bi-plus-lg"></i> Thêm phiếu ứng
                 </button>
@@ -113,39 +114,41 @@
 
             <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-delay="40">
                 <div
-                    class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-2 py-3 px-4">
-                    <div class="d-flex align-items-center gap-3 flex-wrap flex-md-nowrap">
+                    class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-2 py-3 px-3 px-md-4">
+                    <div class="d-flex align-items-center justify-content-between w-100 w-md-auto gap-3">
                         <span class="fw-bold text-primary d-flex align-items-center gap-2 text-nowrap">
-                            <i class="bi bi-table"></i> Danh sách ứng tiền
+                            <i class="bi bi-table"></i> Danh sách
                         </span>
-
                         <!-- Filter Năm -->
-                        <div class="d-flex align-items-center gap-2 border-start ps-3 ms-1"
+                        <div class="d-flex align-items-center gap-2 border-start ps-2 ps-md-3 ms-1"
                             style="border-left-width: 2px !important;">
                             <label class="fw-semibold small text-muted mb-0">Năm</label>
                             <input id="adv-year-filter" type="number" class="form-control form-control-sm"
-                                style="width:90px" min="2020" max="2099" />
+                                style="width:80px" min="2020" max="2099" />
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-3 mt-2 mt-md-0 flex-wrap flex-md-nowrap">
-                        <!-- Tổng tiền -->
-                        <div class="text-end me-2 text-nowrap">
-                            <span class="small text-muted mb-0 d-block" style="line-height:1">Tổng ứng</span>
-                            <span id="adv-total-amount" class="fw-bold text-danger" style="font-size:1.1rem">0
-                                VNĐ</span>
-                        </div>
+                    <div
+                        class="d-flex align-items-center gap-3 mt-3 mt-md-0 flex-wrap flex-md-nowrap w-100 w-md-auto justify-content-between">
                         <!-- Search -->
-                        <div class="input-group input-group-sm" style="width:230px">
+                        <div class="input-group input-group-sm search-box-ux flex-grow-1">
                             <span class="input-group-text bg-white border-end-0">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
                             <input id="adv-search" type="text" class="form-control border-start-0 ps-0"
-                                placeholder="Tìm kiếm..." />
+                                placeholder="Tìm kiếm công nhân hoặc ghi chú..." />
+                        </div>
+                        <!-- Tổng tiền -->
+                        <div class="d-flex align-items-center gap-2 text-nowrap ms-md-2">
+                            <span class="small text-muted mb-0">Tổng ứng:</span>
+                            <span id="adv-total-amount" class="fw-bold text-danger" style="font-size:1.1rem">0
+                                VNĐ</span>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive">
+
+                <!-- Desktop Table -->
+                <div class="table-responsive d-none d-lg-block">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
@@ -160,10 +163,16 @@
                         </thead>
                         <tbody id="adv-tbody">
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">Đang tải...</td>
+                                <td colspan="7" class="text-center text-muted py-4">Đang tải...</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile List -->
+                <div id="adv-mobile-list" class="d-lg-none d-flex flex-column p-2 p-md-3"
+                    style="background-color: #f8fafb; min-height: 200px;">
+                    <div class="text-center text-muted py-4">Đang tải...</div>
                 </div>
             </div>
         </section>

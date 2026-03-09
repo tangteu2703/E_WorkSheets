@@ -271,7 +271,7 @@ const PaymentModule = (() => {
 
     /* ─────────────── RENDER TABLE ─────────────── */
     function renderTable() {
-        $('pay-year-label').textContent = `Năm ${currentYear}`;
+        const currentYear = parseInt($('pay-year').value, 10);
 
         const term = ($('pay-search')?.value || '').toLowerCase().trim();
         let yearRows = results.filter(r => r.year === currentYear);
@@ -285,18 +285,27 @@ const PaymentModule = (() => {
 
         if (!yearRows.length) {
             const isEmptySearch = term !== '';
-            $('pay-tbody').innerHTML = `<tr><td colspan="8" class="text-center text-muted py-5">
+
+            const emptyHtml = `<div class="text-center text-muted py-5">
                 <i class="bi ${isEmptySearch ? 'bi-search' : 'bi-wallet2'} d-block fs-2 mb-2 text-muted opacity-50"></i>
                 <div class="${isEmptySearch ? 'text-muted' : ''}">
                     ${isEmptySearch ? `Không tìm thấy kết quả cho "${term}"` : 'Nhấn <strong>Tính lương</strong> để thêm dữ liệu'}
                 </div>
-            </td></tr>`;
+            </div>`;
+
+            $('pay-tbody').innerHTML = `<tr><td colspan="9">` + emptyHtml + `</td></tr>`;
             $('pay-summary').innerHTML = '';
+
+            const mobileListEl = $('pay-mobile-list');
+            if (mobileListEl) {
+                mobileListEl.innerHTML = emptyHtml;
+            }
             return;
         }
 
         let grandTotal = 0, grandAdv = 0, grandNet = 0, grandDays = 0;
         let html = '';
+        let mobileHtml = ''; // For mobile card view
 
         yearRows.forEach((r, i) => {
             const realIdx = results.indexOf(r);
@@ -307,6 +316,7 @@ const PaymentModule = (() => {
             const p1Label = r.p1months.map(m => 'Th.' + m).join(', ') || '—';
             const p2Label = r.p2months.map(m => 'Th.' + m).join(', ') || '—';
 
+            // Desktop Table Row
             html += `<tr>
                 <td class="text-center text-muted">${i + 1}</td>
                 <td>
@@ -335,6 +345,47 @@ const PaymentModule = (() => {
                     </div>
                 </td>
             </tr>`;
+
+            // Mobile Card
+            mobileHtml += `
+            <div class="bg-white border rounded-3 p-3 position-relative" style="box-shadow: 0 2px 4px rgba(0,0,0,.02)">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <div class="fw-bold" style="font-size:.95rem">${r.workerName}</div>
+                        <div class="text-muted small">${r.workerId} · ${r.workerDept}</div>
+                    </div>
+                    <span class="badge bg-light text-primary border rounded-pill">${fmtDay(totalDays)} công</span>
+                </div>
+                
+                <div class="mb-2 d-flex flex-column gap-1" style="font-size:.8rem">
+                     ${r.days1 > 0 ? `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Kỳ 1 (${p1Label})</span>
+                            <span class="fw-semibold" style="color:#059669">${fmtVnd(r.sal1)}</span>
+                        </div>
+                     ` : ''}
+                      ${r.days2 > 0 ? `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Kỳ 2 (${p2Label})</span>
+                            <span class="fw-semibold" style="color:#3b82f6">${fmtVnd(r.sal2)}</span>
+                        </div>
+                     ` : ''}
+                     <div class="d-flex justify-content-between align-items-center border-top border-bottom py-1 my-1">
+                        <span class="text-muted">Ứng tiền</span>
+                        <span class="text-danger fw-semibold">${r.adv > 0 ? fmtVnd(r.adv) : '—'}</span>
+                     </div>
+                     <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Thực nhận</span>
+                        <span class="${netCls}" style="font-size:.95rem">${fmtVnd(r.net)}</span>
+                     </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-3 border-top pt-2">
+                    <button class="btn btn-sm btn-outline-secondary flex-grow-1 d-flex align-items-center justify-content-center gap-1" onclick="PaymentModule.edit(${realIdx})"><i class="bi bi-pencil-fill"></i> Sửa</button>
+                    <button class="btn btn-sm d-flex align-items-center justify-content-center gap-1" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;flex-grow:1" onclick="PaymentModule.printSlip(${realIdx})"><i class="bi bi-printer-fill"></i> In phiếu</button>
+                    <button class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center gap-1" onclick="PaymentModule.del(${realIdx})"><i class="bi bi-trash-fill"></i> Xóa</button>
+                </div>
+            </div>`;
         });
 
         html += `<tr class="table-dark fw-bold">
@@ -348,6 +399,33 @@ const PaymentModule = (() => {
         </tr>`;
 
         $('pay-tbody').innerHTML = html;
+
+        // Render card total for mobile
+        mobileHtml += `
+        <div class="bg-dark text-white rounded-3 p-3 mt-2 shadow-sm">
+            <div class="text-center mb-2" style="font-size:.85rem; color:#94a3b8">TỔNG CỘNG DANH SÁCH</div>
+            <div class="d-flex justify-content-between mb-1">
+                <span style="color:#cbd5e1">Tổng công:</span>
+                <span class="fw-bold">${fmtDay(grandDays)}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+                <span style="color:#cbd5e1">Tổng lương:</span>
+                <span class="fw-bold">${fmtVnd(grandTotal)}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+                <span style="color:#fca5a5">Tổng ứng:</span>
+                <span class="fw-bold text-warning">${fmtVnd(grandAdv)}</span>
+            </div>
+            <div class="d-flex justify-content-between border-top border-secondary pt-2 mt-2">
+                <span class="fw-bold">Thực chi:</span>
+                <span class="fw-bold text-success fs-5">${fmtVnd(grandNet)}</span>
+            </div>
+        </div>`;
+
+        const mobileListEl = $('pay-mobile-list');
+        if (mobileListEl) {
+            mobileListEl.innerHTML = mobileHtml;
+        }
 
         $('pay-summary').innerHTML = `<div class="d-flex gap-2 flex-wrap mb-3">
             <span class="badge rounded-pill px-3 py-2" style="background:#ecfdf5;color:#065f46">

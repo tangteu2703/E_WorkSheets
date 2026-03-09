@@ -23,6 +23,7 @@ const AdvancesModule = (() => {
     /* ---- Render ---- */
     function renderTable() {
         const tbody = $('adv-tbody');
+        const mobileList = $('adv-mobile-list');
 
         let filtered = advances.filter(a => {
             const w = workers.find(x => x.id === a.workerId);
@@ -47,7 +48,9 @@ const AdvancesModule = (() => {
         }
 
         if (!filtered.length) {
-            tbody.innerHTML = `<tr class="no-data-row"><td colspan="7"><i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.3"></i>Không có phiếu ứng nào trong năm ${filterYear}</td></tr>`;
+            const emptyHtml = `<div class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>Không có phiếu ứng nào trong năm ${filterYear}</div>`;
+            tbody.innerHTML = `<tr><td colspan="7">${emptyHtml}</td></tr>`;
+            if (mobileList) mobileList.innerHTML = emptyHtml;
             return;
         }
 
@@ -73,6 +76,34 @@ const AdvancesModule = (() => {
                 </td>
             </tr>`;
         }).join('');
+
+        if (mobileList) {
+            mobileList.innerHTML = filtered.map((a, i) => {
+                const w = workers.find(x => x.id === a.workerId);
+                const wName = w ? w.hoTen : `Đã xóa (${a.workerId})`;
+                const note = a.note ? `<div class="mt-2 text-muted small fst-italic"><i class="bi bi-chat-left-text me-1"></i>${a.note}</div>` : '';
+
+                return `
+                <div class="card mb-2 shadow-sm border-0 rounded-3">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-light text-success border border-success-subtle mb-1">${formatDate(a.date)}</span>
+                                <h6 class="mb-0 fw-bold text-dark">${wName} <span class="text-muted fw-normal" style="font-size:0.75rem">#${a.workerId}</span></h6>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-light text-primary py-0 px-2 border" onclick="AdvancesModule.openEdit('${a.id}')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-light text-danger py-0 px-2 border" onclick="AdvancesModule.confirmDelete('${a.id}')"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="mt-2 bg-light p-2 rounded text-end border">
+                            <div class="fw-bold" style="color:#b45309;font-size:1.1rem">${formatCurrency(a.amount)} đ</div>
+                        </div>
+                        ${note}
+                    </div>
+                </div>`;
+            }).join('');
+        }
     }
 
     function populateWorkerSelect() {
