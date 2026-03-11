@@ -54,6 +54,114 @@ async function authLogin(username, password) {
     }
 }
 
+let authFaceCache = null;
+let authFaceCacheTime = 0;
+
+/* ── Đăng nhập — Bằng khuôn mặt (Face Auth - Tự động 1:N) ── */
+async function authLoginWithFace(currentDescriptor) {
+    if (!window.supabaseClient) {
+        console.error('Supabase client is not initialized.');
+        return { success: false, msg: 'Hệ thống chưa kết nối dữ liệu.' };
+    }
+
+    try {
+        let accounts = authFaceCache;
+        // Fetch lại data nếu cache rỗng hoặc đã qua 15 giây
+        if (!accounts || Date.now() - authFaceCacheTime > 15000) {
+            console.log("⏳ Đang tải Face Database từ Supabase vòng mới...");
+            const { data: dbAcc, error } = await window.supabaseClient
+                .from('accounts')
+                .select('*')
+                .not('face_descriptor', 'is', null);
+
+            if (error || !dbAcc || dbAcc.length === 0) {
+                return { success: false, msg: 'Chưa có tài khoản nào đăng ký khuôn mặt.' };
+            }
+            accounts = dbAcc;
+            authFaceCache = accounts;
+            authFaceCacheTime = Date.now();
+        }
+
+        let bestMatchAccount = null;
+        let bestDistance = 0.45; // Ngưỡng nhận diện (càng nhỏ càng khắt khe, 0.45 khá an toàn cho 1:N)
+
+        console.log(`🔍 Bắt đầu so khớp 1:N với ${accounts.length} người dùng đã đăng ký...`);
+
+        // Duyệt qua tất cả account để tìm người giống nhất
+        for (const acc of accounts) {
+            let dbDescriptor = null;
+            try {
+                dbDescriptor = typeof acc.face_descriptor === 'string' ? JSON.parse(acc.face_descriptor) : acc.face_descriptor;
+            } catch (e) {
+                console.log(`   ❌ Bỏ qua [${acc.username}] do dữ liệu Face lưu sai định dạng.`);
+                continue; // Bỏ qua nếu data lỗi
+            }
+
+            const float32DbDescriptor = new Float32Array(dbDescriptor);
+
+            // Tính khoảng cách
+            const distance = faceapi.euclideanDistance(currentDescriptor, float32DbDescriptor);
+            console.log(`   👤 So với [${acc.username}]: Khoảng cách = ${distance.toFixed(4)} ${distance < 0.45 ? '-> (ĐẠT)' : ''}`);
+
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestMatchAccount = acc;
+            }
+        }
+
+        if (!bestMatchAccount) {
+            console.log("🚫 KHÔNG TÌM THẤY MATCH NÀO VƯỢT QUA NGƯỠNG AN TOÀN (< 0.45).");
+            return { success: false, msg: 'Khuôn mặt không khớp với bất kỳ nhân viên nào.' };
+        }
+
+        console.log(`🎉 MATCH THÀNH CÔNG: Người dùng khớp nhất là [${bestMatchAccount.username}] với khoảng cách tối ưu: ${bestDistance.toFixed(4)}`);
+
+        // Tạm dừng chạy code (nếu đang bật F12) để bạn có thời gian check data
+        debugger;
+
+        // Đăng nhập thành công
+        const acc = bestMatchAccount;
+        const token = _generateToken();
+        const session = {
+            username: acc.username,
+            role: acc.role,
+            avatar: acc.avatar,
+            fullname: acc.fullname,
+            email: acc.email,
+            phone: acc.phone,
+            token: token,
+            loginAt: Date.now(),
+            expiresAt: Date.now() + TOKEN_TTL_MS,
+        };
+
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        sessionStorage.setItem(TOKEN_KEY, token);
+        return { success: true, session: session, user: acc };
+    } catch (err) {
+        console.error('Error during face login:', err);
+        return { success: false, msg: 'Lỗi máy chủ.' };
+    }
+}
+
+/* ── Cập nhật dữ liệu khuôn mặt lên Supabase ── */
+async function authUpdateFaceDescriptor(username, descriptor) {
+    if (!window.supabaseClient) return false;
+    try {
+        // descriptor từ faceapi là Float32Array, ta chuyển thành Array thường để Supabase JSONB lưu trữ
+        const descriptorArray = Array.from(descriptor);
+
+        const { error } = await window.supabaseClient
+            .from('accounts')
+            .update({ face_descriptor: descriptorArray })
+            .eq('username', username.trim());
+
+        return !error;
+    } catch (err) {
+        console.error('Lỗi khi cập nhật khuôn mặt:', err);
+        return false;
+    }
+}
+
 /* ── Đăng xuất ── */
 function authLogout() {
     sessionStorage.removeItem(SESSION_KEY);
