@@ -590,38 +590,7 @@
         </div>
     </div>
 
-    <!-- Modal Face Register Prompt -->
-    <div class="modal fade" id="faceRegisterModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content border-0 shadow-lg" style="border-radius:24px;overflow:hidden">
-                <div class="modal-body p-4 text-center">
-                    <div class="mb-3" style="font-size:3rem;color:#10b981;line-height:1"><i
-                            class="bi bi-person-bounding-box"></i></div>
-                    <h5 class="fw-bold fs-5 mb-2">Đăng ký khuôn mặt</h5>
-                    <p class="text-muted small mb-4">Bạn có muốn thiết lập đăng nhập bằng khuôn mặt cho các lần sau
-                        không?</p>
 
-                    <div id="registerFaceWrapper" class="d-none mb-3">
-                        <div class="face-modal-cam mx-auto" style="width: 200px; height: 200px; border-radius: 50%;">
-                            <video id="regVideoElement" playsinline></video>
-                            <div id="regFaceOverlay" class="face-scan-overlay"></div>
-                            <div id="regFaceText" class="face-scan-text d-none">Vui lòng nhìn thẳng...</div>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="modal-footer border-0 justify-content-center pb-4 pt-0 flex-nowrap" id="regFaceFooter">
-                    <button type="button" class="btn btn-light w-50 fw-semibold" id="btnSkipFaceReg">Bỏ qua</button>
-                    <button type="button" class="btn btn-primary w-50 fw-semibold" id="btnStartFaceReg">Đồng ý</button>
-                </div>
-                <!-- Loading State Footer -->
-                <div class="modal-footer border-0 justify-content-center pb-4 pt-0 d-none" id="regFaceLoadingFooter">
-                    <span class="text-muted small"><span class="spinner-border spinner-border-sm me-2"></span>Đang xử
-                        lý...</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -694,109 +663,10 @@
             }
 
             // Get account data to check face descriptor
-            const { data: accData } = await window.supabaseClient.from('accounts').select('face_descriptor').eq('username', username).single();
-
-            if (!accData || !accData.face_descriptor) {
-                // Hiển thị Modal hỏi đăng ký khuôn mặt
-                const regModal = new bootstrap.Modal(document.getElementById('faceRegisterModal'));
-
-                // Gắn dataset username để dùng trong modal
-                document.getElementById('faceRegisterModal').dataset.username = username;
-
-                regModal.show();
-            } else {
-                // Đã có mật khẩu rồi thì vào luôn
-                window.location.href = 'workers.html';
-            }
-        });
-        /* ── Face Registration Logic (After normal login) ── */
-        document.getElementById('btnSkipFaceReg').addEventListener('click', () => {
+            // Đã có mật khẩu rồi thì vào luôn trang chủ
             window.location.href = 'workers.html';
         });
 
-        document.getElementById('btnStartFaceReg').addEventListener('click', async () => {
-            const wrapper = document.getElementById('registerFaceWrapper');
-            const video = document.getElementById('regVideoElement');
-            const overlay = document.getElementById('regFaceOverlay');
-            const text = document.getElementById('regFaceText');
-            const username = document.getElementById('faceRegisterModal').dataset.username;
-
-            document.getElementById('regFaceFooter').classList.add('d-none');
-            document.getElementById('regFaceLoadingFooter').classList.remove('d-none');
-
-            wrapper.classList.remove('d-none');
-            text.classList.remove('d-none');
-            text.textContent = "Đang tải Model AI...";
-
-            try {
-                await loadFaceModels();
-                text.textContent = "Đang mở camera...";
-
-                const camReady = await startCamera(video);
-                if (!camReady) throw new Error("Không thể mở Camera");
-
-                text.textContent = "Vui lòng nhìn thẳng...";
-                overlay.className = 'face-scan-overlay scanning';
-
-                // Cho UI kịp render chữ trước khi WebGL chạy nặng
-                await new Promise(r => setTimeout(r, 100));
-
-                // Thử quét nhiều lần cho đến khi thành công hoặc timeout
-                let attempts = 0;
-                let isProcessing = false;
-
-                const scanInterval = setInterval(async () => {
-                    if (isProcessing) return;
-                    attempts++;
-
-                    if (attempts > 10) {
-                        clearInterval(scanInterval);
-                        overlay.className = 'face-scan-overlay error';
-                        text.textContent = "Không tìm thấy khuôn mặt rõ nét, vui lòng thử lại sau";
-                        stopCamera(video);
-                        setTimeout(() => window.location.href = 'workers.html', 3000);
-                        return;
-                    }
-
-                    text.textContent = `Đang quét... (${attempts}/10)`;
-                    isProcessing = true;
-
-                    try {
-                        let descriptor = await extractFaceDescriptor(video);
-                        if (descriptor) {
-                            clearInterval(scanInterval);
-                            overlay.className = 'face-scan-overlay success';
-                            text.textContent = "Thành công!";
-                            stopCamera(video);
-
-                            // Cập nhật DB
-                            text.textContent = "Đang lưu dữ liệu...";
-                            const saved = await authUpdateFaceDescriptor(username, descriptor);
-
-                            if (saved) {
-                                window.location.href = 'workers.html';
-                            } else {
-                                throw new Error("Lưu CSDL thất bại");
-                            }
-                            return;
-                        }
-                    } catch (e) {
-                        console.error(e);
-                    }
-                    isProcessing = false;
-                }, 1000); // Thử mỗi giây
-
-            } catch (err) {
-                console.error(err);
-                overlay.className = 'face-scan-overlay error';
-                text.textContent = err.message || "Lỗi thiết lập";
-                stopCamera(video);
-
-                setTimeout(() => {
-                    window.location.href = 'workers.html';
-                }, 2000);
-            }
-        });
 
         /* ── Face Login Logic (Auto Trigger) ── */
         const faceLoginModalEl = document.getElementById('faceLoginModal');

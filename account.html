@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Tài Khoản - Phần Mềm Tính Công</title>
+    <meta name="description" content="Quản lý tài khoản hệ thống và thiết lập Face ID" />
+
+    <!-- Bootstrap 5.3 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- AOS Animation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+    <!-- Luxury Custom CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+    <!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+    <div id="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <video src="img/logo_03tang.mp4" autoplay loop muted playsinline style="width:32px;height:32px;object-fit:contain;border-radius:8px;flex-shrink:0;
+                       filter:drop-shadow(0 3px 8px rgba(245,158,11,.5))">
+            </video>
+            <span class="sidebar-brand-text">PHẦN MỀM<br>TÍNH CÔNG</span>
+            <button id="btn-collapse-sidebar" title="Thu gọn">
+                <i class="bi bi-layout-sidebar-reverse"></i>
+            </button>
+        </div>
+
+        <!-- Nav -->
+        <div class="px-1 mt-1">
+            <div class="sidebar-section-label">Quản lý</div>
+
+            <a href="workers.html" id="nav-workers" class="nav-link-tc" title="Công Nhân">
+                <i class="bi bi-people-fill"></i>
+                <span class="nav-label">Công Nhân</span>
+            </a>
+            <a href="attendance.html" id="nav-monthly" class="nav-link-tc" title="Bảng Công Tháng">
+                <i class="bi bi-calendar3"></i>
+                <span class="nav-label">Bảng Công Tháng</span>
+            </a>
+            <a href="advances.html" id="nav-advances" class="nav-link-tc" title="Quản lý Ứng Tiền">
+                <i class="bi bi-cash-stack"></i>
+                <span class="nav-label">Ứng Tiền</span>
+            </a>
+            <a href="annual.html" id="nav-annual" class="nav-link-tc" title="Tổng Hợp Năm">
+                <i class="bi bi-bar-chart-fill"></i>
+                <span class="nav-label">Tổng Hợp Năm</span>
+            </a>
+            <a href="payment.html" id="nav-payment" class="nav-link-tc" title="Thanh Toán Lương">
+                <i class="bi bi-wallet2"></i>
+                <span class="nav-label">Thanh Toán</span>
+            </a>
+            <a href="account.html" id="nav-account" class="nav-link-tc active" title="Tài Khoản">
+                <i class="bi bi-person-badge-fill"></i>
+                <span class="nav-label">Tài Khoản</span>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="sidebar-footer">
+
+            <button id="btn-logout" onclick="authLogout()" title="Đăng xuất" style="width:100%;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);
+                       color:#fca5a5;border-radius:8px;padding:.45rem .5rem;
+                       font-size:.78rem;font-weight:600;cursor:pointer;
+                       display:flex;align-items:center;justify-content:center;gap:.4rem;
+                       transition:background .2s,color .2s">
+                <i class="bi bi-box-arrow-left"></i>
+                <span class="nav-label">Đăng xuất</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Overlay (mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+    <div id="main-content">
+
+        <!-- TOP BAR (mobile only) -->
+        <div class="d-md-none tc-topbar d-flex align-items-center gap-2 px-3 py-2">
+            <button id="btn-toggle-sidebar" class="btn btn-sm border-0 d-flex align-items-center p-1"
+                style="background:rgba(255,255,255,.15);border-radius:8px">
+                <i class="bi bi-list text-white fs-5"></i>
+            </button>
+            <i class="bi bi-person-badge-fill text-warning"></i>
+            <span class="fw-bold text-white">Tài Khoản</span>
+        </div>
+
+        <!-- TOAST CONTAINER -->
+        <div id="toast-container" class="tc-toast-box"></div>
+
+        <!-- ==================================================
+       SECTION 1: Quản lý Tài Khoản
+       ================================================== -->
+        <section id="sec-accounts">
+
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4">
+                <div data-aos="fade-right">
+                    <h2 class="page-title"><i class="bi bi-person-badge-fill"></i>Quản Lý Tài Khoản</h2>
+                    <p class="page-subtitle mb-0">Danh sách tài khoản hệ thống & Face ID</p>
+                </div>
+                <!-- Về sau có thể làm thêm bảo mật dựa vào quyền ở đây -->
+                <button id="acc-btn-add"
+                    class="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2"
+                    data-aos="fade-left" onclick="AccountsModule.openAdd()">
+                    <i class="bi bi-person-plus-fill"></i> Thêm Tài Khoản
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="row g-2 g-md-3 mb-4">
+                <div class="col-6 col-md-6" data-aos="fade-up" data-aos-delay="0">
+                    <div class="stat-card-lux blue">
+                        <div class="stat-icon-lux blue"><i class="bi bi-people-fill"></i></div>
+                        <div>
+                            <div class="stat-value-lux" id="acc-stat-total">0</div>
+                            <div class="stat-label-lux text-truncate">Tổng tài khoản</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6" data-aos="fade-up" data-aos-delay="60">
+                    <div class="stat-card-lux green">
+                        <div class="stat-icon-lux green"><i class="bi bi-person-bounding-box"></i></div>
+                        <div>
+                            <div class="stat-value-lux" id="acc-stat-face" style="color:#12b76a">0</div>
+                            <div class="stat-label-lux text-truncate">Đã cài Face ID</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table card -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-delay="80">
+                <div
+                    class="card-header bg-white d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 py-3 px-3 px-md-4">
+                    <span class="fw-bold text-primary d-flex align-items-center gap-2">
+                        <i class="bi bi-table"></i> Danh sách Tài Khoản
+                    </span>
+                    <div class="search-box-ux input-group input-group-sm" style="max-width:300px">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input id="acc-search" type="text" class="form-control border-start-0 ps-0"
+                            placeholder="Tìm bằng Tên đăng nhập..." />
+                    </div>
+                </div>
+
+                <!-- Desktop Table -->
+                <div class="table-responsive d-none d-lg-block">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:44px">#</th>
+                                <th>Tên Đăng Nhập</th>
+                                <th>Họ Tên</th>
+                                <th>Face ID</th>
+                                <th>Quyền</th>
+                                <th>Ngày tạo</th>
+                                <th style="width:140px" class="text-center">Quét FaceID</th>
+                                <th style="width:100px" class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="acc-tbody">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile List -->
+                <div id="acc-mobile-list" class="d-lg-none d-flex flex-column p-2 p-md-3"
+                    style="background-color: #f8fafb; min-height: 200px;">
+                    <div class="text-center text-muted py-4">Đang tải dữ liệu...</div>
+                </div>
+            </div>
+        </section> <!-- End Accounts Section -->
+
+    </div><!-- /main-content -->
+
+
+    <!-- ==================================================
+     MODAL: Thêm Tài Khoản
+     ================================================== -->
+    <div id="acc-modal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white">
+                    <h5 class="modal-title" id="acc-modal-title">Thêm Tài Khoản</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="acc-form" novalidate onsubmit="AccountsModule.save(event)">
+                    <div class="modal-body px-4 py-3">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Tên Đăng Nhập (Username) <span
+                                        class="text-danger">*</span></label>
+                                <input id="acc-username-field" type="text" class="form-control form-control-sm"
+                                    placeholder="VD: admin_nhamay" required />
+                                <div class="invalid-feedback">Vui lòng nhập Username</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Họ và Tên <span
+                                        class="text-danger">*</span></label>
+                                <input id="acc-fullname-field" type="text" class="form-control form-control-sm"
+                                    placeholder="VD: Nguyễn Văn Admin" required />
+                                <div class="invalid-feedback">Vui lòng nhập Họ Tên</div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Mật Khẩu <span
+                                        class="text-danger">*</span></label>
+                                <input id="acc-password-field" type="password" class="form-control form-control-sm"
+                                    required />
+                                <div class="invalid-feedback">Vui lòng nhập mật khẩu</div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Quyền / Role</label>
+                                <select id="acc-role-field" class="form-select form-select-sm">
+                                    <option value="admin">Quản trị viên (Admin)</option>
+                                    <option value="accountancy">Kế toán (Accountancy)</option>
+                                    <option value="user">Người dùng (User)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer px-4">
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3"
+                            data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" id="acc-btn-save"
+                            class="btn btn-sm btn-primary px-4 d-flex align-items-center gap-1">
+                            <i class="bi bi-floppy-fill"></i> Tạo Mới
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================
+     MODAL: Đăng ký Face ID
+     ================================================== -->
+    <div class="modal fade" id="faceRegisterModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:24px;overflow:hidden">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3" style="font-size:3rem;color:#10b981;line-height:1"><i
+                            class="bi bi-person-bounding-box"></i></div>
+                    <h5 class="fw-bold fs-5 mb-2">Đăng ký khuôn mặt</h5>
+                    <p class="text-muted small mb-4">Cập nhật dữ liệu đăng nhập bằng khuôn mặt cho tài khoản <strong
+                            id="regFaceUsernameLabel" class="text-primary"></strong></p>
+
+                    <div id="registerFaceWrapper" class="d-none mb-3">
+                        <div class="face-modal-cam mx-auto shadow-sm"
+                            style="width: 200px; height: 200px; border-radius: 50%; position: relative; overflow: hidden;">
+                            <video id="regVideoElement" playsinline
+                                style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+                            <div id="regFaceOverlay" class="face-scan-overlay">
+                                <div class="scan-line"></div>
+                            </div>
+                        </div>
+                        <div id="regFaceText" class="face-scan-text mt-3 fw-medium">Vui lòng nhìn thẳng...</div>
+                    </div>
+
+                </div>
+                <div class="modal-footer border-0 justify-content-center pb-4 pt-0 flex-nowrap" id="regFaceFooter">
+                    <button type="button" class="btn btn-light w-50 fw-semibold shadow-sm" id="btnSkipFaceReg"
+                        data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="button" class="btn btn-primary w-50 fw-semibold shadow-sm" id="btnStartFaceReg">Tiến
+                        hành quét</button>
+                </div>
+                <!-- Loading State Footer -->
+                <div class="modal-footer border-0 justify-content-center pb-4 pt-0 d-none" id="regFaceLoadingFooter">
+                    <span class="text-muted fw-medium"><span
+                            class="spinner-border spinner-border-sm me-2 text-primary"></span>Đang phân tích khuôn
+                        mặt...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================================================
+     MODAL: Confirm Dialog
+     ================================================== -->
+    <div id="confirm-modal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-0 shadow-lg">
+                <div class="modal-body py-4 px-4">
+                    <div class="fs-1 mb-2" id="confirm-icon">⚠️</div>
+                    <h6 class="fw-bold" id="confirm-title">Xác nhận</h6>
+                    <p class="text-muted small mb-3" id="confirm-msg"></p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal">Hủy</button>
+                        <button id="confirm-ok" class="btn btn-sm btn-danger px-3 shadow-sm">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <!-- Auth -->
+    <script src="js/auth.js"></script>
+    <script>authGuard();</script>
+    <!-- Supabase + App scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Face API for Registration -->
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/face-auth.js"></script>
+    <script src="js/account.js"></script>
+    <script>
+        AOS.init({ duration: 420, once: true, easing: 'ease-out-cubic' });
+
+        // Init Accounts Module
+        document.addEventListener('DOMContentLoaded', () => {
+            AccountsModule.init();
+        });
+    </script>
+
+</body>
+
+</html>
