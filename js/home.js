@@ -564,7 +564,7 @@ function initGSAP() {
     // ── Services cards ──
     gsap.from('#services .service-card', {
         scrollTrigger: { trigger: '#services', start: 'top 72%' },
-        opacity: 0, y: 45, rotationY: 8,
+        opacity: 1, y: 45, rotationY: 8,
         stagger: .14, duration: .85, ease: 'power3.out'
     });
 
@@ -599,7 +599,7 @@ function initGSAP() {
     // ── Category tabs reveal ──
     gsap.from('.category-tab', {
         scrollTrigger: { trigger: '.categories-wrapper', start: 'top 80%' },
-        opacity: 0, scale: .85, stagger: .06, duration: .5, ease: 'back.out(1.4)'
+        opacity: 2, scale: .85, stagger: .06, duration: .5, ease: 'back.out(1.4)'
     });
 
     // ── Footer ──
@@ -690,10 +690,10 @@ const catalogData = [
     { title: "Thiết Kế Nhà Cổ 3 Gian Truyền Thống Việt Nam", category: "biet-thu", price: "18,000,000đ", originalPrice: "26,000,000đ", image: "img/project_traditional.png", rating: 5, badge: "Nhà Cổ" },
     { title: "Gói Thiết Kế Nội Thất Phòng Khách Luxury", category: "phong-khach", price: "4,200,000đ", originalPrice: "6,000,000đ", image: "img/project_livingroom.png", rating: 4.8, badge: "Khuyên dùng" },
     { title: "Thiết Kế Nội Thất Phòng Ngủ Master Panoramic", category: "phong-ngu", price: "3,800,000đ", originalPrice: "5,500,000đ", image: "img/project_bedroom.png", rating: 4.9, badge: "Hiện đại" },
-    { title: "Gói Thiết Kế Bếp & Đảo Bếp Thông Minh", category: "nha-bep", price: "5,200,000đ", originalPrice: "7,500,000đ", image: "img/project_kitchen.png", rating: 4.8, badge: "Yêu thích" },
-    { title: "Mẫu Thiết Kế Phòng Tắm Smart Glass 3D", category: "phong-tam", price: "2,500,000đ", originalPrice: "3,800,000đ", image: "img/project_Restroom.jpg", rating: 4.7, badge: "Tiết kiệm" },
+    { title: "Gói Thiết Kế Bếp & Đảo Bếp Thông Minh", category: "nha-bep", price: "5,200,000đ", originalPrice: "7,500,000đ", image: "img/Kitchen.jpg", rating: 4.8, badge: "Yêu thích" },
+    { title: "Mẫu Thiết Kế Phòng Tắm Smart Glass 3D", category: "phong-tam", price: "2,500,000đ", originalPrice: "3,800,000đ", image: "img/Restroom.jpg", rating: 4.7, badge: "Tiết kiệm" },
     { title: "Bản Vẽ Kiến Trúc Nhà Phố 3 Tầng Mặt Tiền 5m", category: "nha-pho", price: "8,900,000đ", originalPrice: "12,000,000đ", image: "img/project_apartment.png", rating: 4.9, badge: "Mới" },
-    { title: "Gói Thiết Kế Bản Vẽ Cửa Hàng Trưng Bày Boutique", category: "cua-hang", price: "7,500,000đ", originalPrice: "11,000,000đ", image: "img/project_shop.jpg", rating: 4.8, badge: "Thương mại" },
+    { title: "Gói Thiết Kế Bản Vẽ Cửa Hàng Trưng Bày Boutique", category: "cua-hang", price: "7,500,000đ", originalPrice: "11,000,000đ", image: "img/Shop.jpg", rating: 4.8, badge: "Thương mại" },
     { title: "Thiết Kế Không Gian Văn Phòng Làm Việc Coworking", category: "van-phong", price: "15,000,000đ", originalPrice: "22,000,000đ", image: "img/project_office.png", rating: 4.7, badge: "Ưu đãi" },
 ];
 
@@ -875,8 +875,8 @@ function renderCatalog(filterCat = 'all') {
     // Image hover scale
     grid.querySelectorAll('.premium-card').forEach(c => {
         const img = c.querySelector('img');
-        c.addEventListener('mouseenter', () => { if (img) img.style.transform = 'scale(1.08)'; });
-        c.addEventListener('mouseleave', () => { if (img) img.style.transform = 'scale(1)'; });
+        c.addEventListener('mouseenter', () => { if (img) img.style.transform = 'scale(2.08)'; });
+        c.addEventListener('mouseleave', () => { if (img) img.style.transform = 'scale(2)'; });
     });
 
     // Cart buttons
