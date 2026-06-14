@@ -1,810 +1,603 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập — Phần mềm Tính Công</title>
-    <meta name="description" content="Đăng nhập vào hệ thống quản lý tính công lao động">
+    <title>03.Tang Construction — Premier Architecture Studio</title>
+    <meta name="description"
+        content="Kiến trúc đỉnh cao — từ bản phác thảo đến công trình hoàn mỹ. AI 3D Visualization & Thi công trọn gói.">
 
-    <!-- Bootstrap 5.3 -->
-    <link rel="stylesheet" href="js/lib/bootstrap.min.css">
+    <!-- Google Fonts: Cinzel + Plus Jakarta Sans + Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap">
+
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="js/lib/bootstrap-icons.min.css">
-    <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Bootstrap 5.3 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
-    <style>
-        /* ── Base ── */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-            min-height: 100dvh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background: #0d1520;
-        }
-
-        /* ── Background: dot-grid + soft center glow ── */
-        .bg-scene {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background-image: radial-gradient(rgb(255 255 255 / 52%) 1px, #00000000 1px);
-            background-size: 26px 26px;
-            background-color: #0d1520;
-            animation: gridBreathe 6s ease-in-out infinite alternate;
-        }
-
-        @keyframes gridBreathe {
-            from {
-                opacity: .55;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Emerald center glow */
-        .bg-scene::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 70% 65% at 50% 50%,
-                    rgba(5, 150, 105, .13) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        /* Edge vignette */
-        .bg-scene::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 100% 100% at 50% 50%,
-                    transparent 35%, rgba(0, 0, 0, .5) 100%);
-            pointer-events: none;
-        }
-
-        /* Mouse-tracking spotlight layer */
-        #spotlight {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background: radial-gradient(circle 280px at 50% 50%,
-                    rgba(5, 150, 105, .18) 0%,
-                    transparent 70%);
-            transition: background 0.08s linear;
-            opacity: 0;
-            animation: spotlightIn 1.2s .4s ease forwards;
-        }
-
-        @keyframes spotlightIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* ── Wrapper ── */
-        .login-root {
-            position: relative;
-            z-index: 1;
-            width: min(100%, 440px);
-            padding: 1.25rem;
-        }
-
-        /* ── iPhone-style Glass Card ── */
-        .glass-card {
-            background: linear-gradient(145deg,
-                    rgba(255, 255, 255, .13) 0%,
-                    rgba(255, 255, 255, .06) 50%,
-                    rgba(255, 255, 255, .04) 100%);
-            backdrop-filter: blur(32px) saturate(180%) brightness(1.08);
-            -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(1.08);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, .18);
-            box-shadow:
-                0 0 0 .5px rgba(255, 255, 255, .08) inset,
-                0 32px 80px rgba(0, 0, 0, .55),
-                0 8px 32px rgba(0, 0, 0, .3);
-            padding: 2.6rem 2.4rem 2.2rem;
-            animation: slideUp .65s cubic-bezier(.22, 1, .36, 1) both;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(36px) scale(.96);
-            }
-
-            to {
-                opacity: 1;
-                transform: none;
-            }
-        }
-
-        /* Specular highlight strip at top */
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 10%;
-            right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
-            border-radius: 100%;
-        }
-
-        .glass-card {
-            position: relative;
-        }
-
-        /* ── Brand logo ── */
-        .brand-logo {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            color: #fff;
-            box-shadow:
-                0 0 0 6px rgba(245, 158, 11, .14),
-                0 12px 32px rgba(245, 158, 11, .4);
-            animation: popIn .7s .1s cubic-bezier(.34, 1.56, .64, 1) both;
-        }
-
-        @keyframes popIn {
-            from {
-                transform: scale(.4) rotate(-20deg);
-                opacity: 0;
-            }
-
-            to {
-                transform: none;
-                opacity: 1;
-            }
-        }
-
-        /* ── Input fields ── */
-        .glass-input-group .input-group-text {
-            background: rgba(255, 255, 255, .07);
-            border: 1.5px solid rgba(255, 255, 255, .14);
-            border-right: none;
-            color: rgba(255, 255, 255, .45);
-            border-radius: 14px 0 0 14px !important;
-            font-size: 1rem;
-            transition: all .22s;
-        }
-
-        .glass-input-group .form-control {
-            background: rgba(255, 255, 255, .07);
-            border: 1.5px solid rgba(255, 255, 255, .14);
-            border-left: none;
-            color: #fff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: .9rem;
-            font-weight: 500;
-            border-radius: 0 14px 14px 0 !important;
-            padding: .72rem 1rem;
-            transition: all .22s;
-        }
-
-        .glass-input-group .form-control::placeholder {
-            color: rgba(255, 255, 255, .28);
-        }
-
-        .glass-input-group:focus-within .form-control,
-        .glass-input-group:focus-within .input-group-text {
-            border-color: rgba(16, 185, 129, .7) !important;
-            background: rgba(5, 150, 105, .1) !important;
-            box-shadow: none !important;
-        }
-
-        .glass-input-group:focus-within .input-group-text {
-            color: #10b981;
-        }
-
-        /* Eye toggle — sits inside the group */
-        .glass-input-group .btn-eye {
-            background: rgba(255, 255, 255, .07);
-            border: 1.5px solid rgba(255, 255, 255, .14);
-            border-left: none;
-            color: rgba(255, 255, 255, .4);
-            border-radius: 0 14px 14px 0 !important;
-            padding: 0 .85rem;
-            cursor: pointer;
-            transition: color .18s;
-        }
-
-        .glass-input-group:focus-within .btn-eye {
-            border-color: rgba(16, 185, 129, .7);
-            background: rgba(5, 150, 105, .1);
-        }
-
-        .glass-input-group .btn-eye:hover {
-            color: rgba(255, 255, 255, .8);
-        }
-
-        /* When eye button present, remove radius from input */
-        .glass-input-group.has-eye .form-control {
-            border-radius: 0 !important;
-            border-right: none;
-        }
-
-        /* ── Labels ── */
-        .field-label {
-            font-size: .72rem;
-            font-weight: 700;
-            letter-spacing: .07em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, .5);
-            margin-bottom: .4rem;
-            display: block;
-        }
-
-        /* ── Error ── */
-        .glass-error {
-            display: none;
-            background: rgba(239, 68, 68, .12);
-            border: 1px solid rgba(239, 68, 68, .3);
-            border-radius: 12px;
-            color: #fca5a5;
-            font-size: .82rem;
-            font-weight: 600;
-            padding: .65rem 1rem;
-            margin-bottom: 1.1rem;
-            align-items: center;
-            gap: .5rem;
-        }
-
-        .glass-error.show {
-            display: flex;
-            animation: shakeX .4s ease;
-        }
-
-        @keyframes shakeX {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-7px);
-            }
-
-            75% {
-                transform: translateX(7px);
-            }
-        }
-
-        /* ── Login button ── */
-        .btn-login {
-            width: 100%;
-            padding: .82rem 1rem;
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            border: none;
-            border-radius: 14px;
-            color: #fff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: .95rem;
-            font-weight: 700;
-            letter-spacing: .02em;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: transform .22s, box-shadow .22s, opacity .22s;
-            box-shadow: 0 6px 24px rgba(5, 150, 105, .45), 0 0 0 1px rgba(255, 255, 255, .1) inset;
-        }
-
-        /* Shimmer sweep */
-        .btn-login::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -120%;
-            width: 80%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .22), transparent);
-            transform: skewX(-20deg);
-            transition: left .6s;
-        }
-
-        .btn-login:hover::after {
-            left: 140%;
-        }
-
-        .btn-login:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 32px rgba(5, 150, 105, .55), 0 0 0 1px rgba(255, 255, 255, .1) inset;
-        }
-
-        .btn-login:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .btn-login:disabled {
-            opacity: .65;
-            cursor: not-allowed;
-        }
-
-        /* ── Footer ── */
-        .login-foot {
-            text-align: center;
-            margin-top: 1.4rem;
-            font-size: .7rem;
-            color: rgba(255, 255, 255, .2);
-            letter-spacing: .04em;
-        }
-
-        /* ── Face Scan Modal UI ── */
-        .face-modal-cam {
-            width: 100%;
-            height: 280px;
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-
-        .face-modal-cam video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1);
-            /* Mirror camera */
-        }
-
-        .face-scan-overlay {
-            position: absolute;
-            inset: 0;
-            border: 3px solid transparent;
-            border-radius: 16px;
-            pointer-events: none;
-            transition: all 0.3s;
-        }
-
-        .face-scan-overlay.scanning {
-            border-color: rgba(5, 150, 105, 0.5);
-            animation: pulseCam 2s infinite;
-        }
-
-        .face-scan-overlay.success {
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-        }
-
-        .face-scan-overlay.error {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        @keyframes pulseCam {
-            0% {
-                box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(5, 150, 105, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
-            }
-        }
-
-        /* Scanline Anim */
-        .scan-line {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 4px;
-            background: rgba(16, 185, 129, 0.8);
-            box-shadow: 0 0 15px 3px rgba(16, 185, 129, 0.6);
-            border-radius: 50%;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .face-scan-overlay.scanning .scan-line {
-            opacity: 1;
-            animation: scanMove 2s infinite ease-in-out;
-        }
-
-        @keyframes scanMove {
-            0% {
-                top: 0%;
-            }
-
-            50% {
-                top: 100%;
-            }
-
-            100% {
-                top: 0%;
-            }
-        }
-
-        .face-scan-text {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            backdrop-filter: blur(4px);
-            white-space: nowrap;
-        }
-
-        /* Nút đăng nhập phụ */
-        .btn-face {
-            width: 100%;
-            padding: .75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            color: #fff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: .9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            margin-top: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-face:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/home.css?v=3.2.0">
 </head>
 
 <body>
 
-    <!-- Background -->
-    <div class="bg-scene"></div>
-    <!-- Mouse spotlight -->
-    <div id="spotlight"></div>
+    <!-- ══════════════════════════════════════════════
+         PRELOADER — Cinema Curtain Opening
+         ══════════════════════════════════════════════ -->
+    <div id="preloader" aria-hidden="true">
+        <div class="curtain curtain-left"></div>
+        <div class="curtain curtain-right"></div>
 
-    <div class="login-root">
-        <div class="glass-card">
-
-            <!-- Brand -->
-            <div class="text-center mb-4">
-                <video src="img/logo_03tang.mp4" autoplay loop muted playsinline class="mx-auto d-block mb-3" style="width:80px;height:80px;object-fit:contain;
-                           border-radius:20px;
-                           filter:drop-shadow(0 8px 24px rgba(245,158,11,.45))">
-                </video>
-                <h1 class="fw-800 mb-1" style="font-size:1.5rem;color:#fff;font-weight:800;letter-spacing:-.02em">
-                    Phần Mềm Tính Công
-                </h1>
-                <p class="mb-0"
-                    style="font-size:.73rem;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.1em;text-transform:uppercase">
-                    Workplace Management System
-                </p>
+        <!-- Film strip holes decoration -->
+        <div class="preloader-strip preloader-strip-top">
+            <div class="pstrip-holes">
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
             </div>
-
-            <!-- Error -->
-            <div class="glass-error" id="loginError">
-                <i class="bi bi-exclamation-circle-fill"></i>
-                <span id="loginErrorMsg">Tên đăng nhập hoặc mật khẩu không đúng.</span>
+        </div>
+        <div class="preloader-strip preloader-strip-bottom">
+            <div class="pstrip-holes">
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
+                <div class="pstrip-hole"></div>
             </div>
+        </div>
 
-            <!-- Form -->
-            <form id="loginForm" novalidate autocomplete="off">
+        <!-- Center content -->
+        <div class="preloader-center">
+            <div class="preloader-countdown" id="preloaderCountdown">
+                <span data-n="5">5</span>
+                <span data-n="4">4</span>
+                <span data-n="3">3</span>
+                <span data-n="2">2</span>
+                <span data-n="1">1</span>
+            </div>
+            <div class="preloader-logo-wrap">
+                <video src="img/logo_03tang.mp4" autoplay loop muted playsinline class="preloader-logo-vid"></video>
+                <div class="preloader-brand">03.TANG</div>
+                <div class="preloader-sub">CONSTRUCTION</div>
+            </div>
+            <div class="preloader-tagline">✦ ĐỈNH CAO KIẾN TRÚC VIỆT NAM ✦</div>
+        </div>
+    </div>
 
-                <div class="mb-3">
-                    <label class="field-label" for="loginUsername">Tên đăng nhập</label>
-                    <div class="input-group glass-input-group">
-                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                        <input id="loginUsername" type="text" class="form-control" placeholder="Nhập tên đăng nhập..."
-                            autocomplete="username">
-                    </div>
+    <!-- ══════════════════════════════════════════════
+         FILM STRIP TOP TICKER
+         ══════════════════════════════════════════════ -->
+    <div class="film-strip-global" id="filmStripGlobal" aria-hidden="true">
+        <div class="fsg-holes">
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+        </div>
+        <div class="fsg-ticker-wrap">
+            <div class="fsg-ticker">
+                <span>03.TANG CONSTRUCTION</span><span class="fsg-dot">✦</span>
+                <span>KIẾN TRÚC ĐỈNH CAO</span><span class="fsg-dot">✦</span>
+                <span>THIẾT KẾ 3D AI</span><span class="fsg-dot">✦</span>
+                <span>THI CÔNG TRỌN GÓI</span><span class="fsg-dot">✦</span>
+                <span>50+ KIẾN TRÚC SƯ</span><span class="fsg-dot">✦</span>
+                <span>500+ CÔNG TRÌNH</span><span class="fsg-dot">✦</span>
+                <!-- duplicate for loop -->
+                <span>03.TANG CONSTRUCTION</span><span class="fsg-dot">✦</span>
+                <span>KIẾN TRÚC ĐỈNH CAO</span><span class="fsg-dot">✦</span>
+                <span>THIẾT KẾ 3D AI</span><span class="fsg-dot">✦</span>
+                <span>THI CÔNG TRỌN GÓI</span><span class="fsg-dot">✦</span>
+                <span>50+ KIẾN TRÚC SƯ</span><span class="fsg-dot">✦</span>
+                <span>500+ CÔNG TRÌNH</span><span class="fsg-dot">✦</span>
+            </div>
+        </div>
+        <div class="fsg-holes">
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+            <div class="fsg-hole"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         NAVBAR
+         ══════════════════════════════════════════════ -->
+    <nav class="navbar navbar-expand-lg glass-navbar sticky-top py-3" id="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <video src="img/logo_03tang.mp4" autoplay loop muted playsinline
+                    style="width:40px;height:40px;object-fit:contain;border-radius:8px;filter:drop-shadow(0 4px 10px rgba(232,160,32,.45))"></video>
+                <div class="lh-1">
+                    <span class="fw-800 fs-5 text-uppercase d-block"
+                        style="font-family:'Cinzel',serif;letter-spacing:.08em;color:var(--primary)">03.Tang</span>
+                    <span
+                        style="font-size:.6rem;font-weight:700;letter-spacing:.15em;color:var(--text-muted)">CONSTRUCTION</span>
                 </div>
+            </a>
 
-                <div class="mb-4">
-                    <label class="field-label" for="loginPassword">Mật khẩu</label>
-                    <div class="input-group glass-input-group has-eye">
-                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                        <input id="loginPassword" type="password" class="form-control" placeholder="Nhập mật khẩu..."
-                            autocomplete="current-password">
-                        <button type="button" class="btn-eye" id="btnTogglePwd">
-                            <i class="bi bi-eye-fill" id="eyeIcon"></i>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list fs-2" style="color:var(--primary)"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#visualizer"><i
+                                class="bi bi-magic me-1"></i>Tạo Ảnh</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#services">Tính năng</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#catalog">Khám Phá</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#pricing">Bảng Giá</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#contact">Liên Hệ</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3 flex-wrap mobile-nav-actions">
+                    <div class="theme-switch-wrapper">
+                        <button id="themeToggleBtn" class="theme-switch-btn">
+                            <i id="themeIcon" class="bi bi-moon-stars-fill theme-switch-icon"></i>
+                            <span id="themeText" class="small fw-semibold">Giao diện: Tối</span>
                         </button>
                     </div>
-                </div>
-
-                <button type="submit" class="btn-login" id="btnLogin">
-                    <span id="btnText"><i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập</span>
-                    <span id="btnLoading" class="d-none">
-                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>Đang xử lý...
-                    </span>
-                </button>
-
-                <button type="button" class="btn-face" id="btnOpenFaceLogin" data-bs-toggle="modal"
-                    data-bs-target="#faceLoginModal">
-                    <i class="bi bi-person-bounding-box"></i> Đăng nhập bằng Khuôn mặt
-                </button>
-
-            </form>
-
-        </div>
-
-        <p class="login-foot">2026 &copy; Phần mềm được phát triển bởi 03.Tang Software &nbsp;·&nbsp; v3.0</p>
-    </div>
-
-    <!-- Modal Face Login -->
-    <div class="modal fade" id="faceLoginModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content"
-                style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);border-radius:24px;">
-                <div class="modal-body p-4 text-center">
-                    <h5 class="text-white mb-3 fw-bold fs-6">Đăng nhập Face ID</h5>
-
-                    <div class="mb-3 text-center text-white-50 small">
-                        Hệ thống sẽ tự động nhận diện khuôn mặt của bạn đối chiếu với cơ sở dữ liệu.
-                    </div>
-
-                    <div class="face-modal-cam mx-auto"
-                        style="width: 220px; height: 220px; border-radius: 50%; box-shadow: inset 0 0 0 4px rgba(255,255,255,0.05);">
-                        <video id="loginVideoElement" playsinline></video>
-                        <div id="loginFaceOverlay" class="face-scan-overlay">
-                            <div class="scan-line"></div>
-                        </div>
-                    </div>
-                    <div id="loginFaceText" class="face-scan-text d-none" style="bottom: 20px;">
-                        Đang khởi động camera...
-                    </div>
-                </div>
-                <div class="modal-footer border-0 justify-content-center pb-4 pt-0">
-                    <button type="button" class="btn btn-outline-secondary btn-sm px-4 rounded-pill"
-                        data-bs-dismiss="modal">Đóng</button>
+                    <a href="login.html" class="btn btn-primary px-4 py-2 rounded-pill fw-bold glow-btn">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Trang Quản Trị
+                    </a>
                 </div>
             </div>
         </div>
+    </nav>
+
+    <!-- ══════════════════════════════════════════════
+         HERO — Three.js Cinema Opening
+         ══════════════════════════════════════════════ -->
+    <section id="hero" class="cinema-hero">
+
+        <!-- Three.js Canvas -->
+        <canvas id="threeCanvas"></canvas>
+
+        <!-- Spotlight beams (CSS) -->
+        <div class="hero-spotlight hero-spot-left" aria-hidden="true"></div>
+        <div class="hero-spotlight hero-spot-right" aria-hidden="true"></div>
+
+        <!-- Red velvet curtain edges -->
+
+        <!-- Vignette overlay -->
+        <div class="hero-vignette" aria-hidden="true"></div>
+
+        <!-- Hero Text Content -->
+        <div class="hero-content" id="heroContent">
+            <div class="hero-eyebrow" id="heroEyebrow">
+                <i class="bi bi-film"></i>
+                <span>AI Architecture Studio</span>
+                <i class="bi bi-film"></i>
+            </div>
+
+            <h3 class="hero-title" id="heroTitle">
+                <span class="hero-line hero-line-1">TỪ BẢN PHÁC THẢO</span>
+                <span class="hero-line hero-line-2">ĐẾN TUYỆT TÁC THỰC TẾ</span>
+            </h3>
+
+            <div class="hero-actions" id="heroActions">
+                <a href="#catalog" id="heroBtnPrimary"
+                    class="btn btn-primary px-5 py-3 rounded-pill fw-bold glow-btn fs-6">
+                    <i class="bi bi-play-circle-fill me-2"></i>Khám Phá Ngay
+                </a>
+                <a href="#visualizer" id="heroBtnSecondary"
+                    class="btn btn-outline-secondary px-5 py-3 rounded-pill fw-bold fs-6">
+                    <i class="bi bi-magic me-2"></i>Thử Ngay Miễn Phí
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="hero-stats-bar" id="heroStatsBar">
+            <div class="hero-stat">
+                <span class="hero-stat-num" data-target="50">0+</span>
+                <span class="hero-stat-lbl">Kiến Trúc Sư</span>
+            </div>
+            <div class="hero-stat-sep"></div>
+            <div class="hero-stat">
+                <span class="hero-stat-num" data-target="500">0+</span>
+                <span class="hero-stat-lbl">Công Trình</span>
+            </div>
+            <div class="hero-stat-sep"></div>
+            <div class="hero-stat">
+                <span class="hero-stat-num" data-target="15">0+</span>
+                <span class="hero-stat-lbl">Năm Kinh Nghiệm</span>
+            </div>
+            <div class="hero-stat-sep"></div>
+            <div class="hero-stat">
+                <span class="hero-stat-num" data-target="98">0%</span>
+                <span class="hero-stat-lbl">Khách Hài Lòng</span>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="scroll-indicator" id="scrollIndicator">
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+            <span class="scroll-label">CUỘN ĐỂ KHÁM PHÁ</span>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         MARQUEE — Golden Ticker
+         ══════════════════════════════════════════════ -->
+    <div class="marquee-band" aria-hidden="true">
+        <div class="marquee-track">
+            <span class="mq-item">THIẾT KẾ KIẾN TRÚC</span><span class="mq-sep">★</span>
+            <span class="mq-item">DỰNG 3D AI</span><span class="mq-sep">★</span>
+            <span class="mq-item">THI CÔNG TRỌN GÓI</span><span class="mq-sep">★</span>
+            <span class="mq-item">NỘI THẤT CAO CẤP</span><span class="mq-sep">★</span>
+            <span class="mq-item">BIỆT THỰ SANG TRỌNG</span><span class="mq-sep">★</span>
+            <span class="mq-item">NHÀ PHỐ HIỆN ĐẠI</span><span class="mq-sep">★</span>
+            <span class="mq-item">VĂN PHÒNG ĐẲNG CẤP</span><span class="mq-sep">★</span>
+            <span class="mq-item">CAO ỐC THƯƠNG MẠI</span><span class="mq-sep">★</span>
+            <!-- duplicate -->
+            <span class="mq-item">THIẾT KẾ KIẾN TRÚC</span><span class="mq-sep">★</span>
+            <span class="mq-item">DỰNG 3D AI</span><span class="mq-sep">★</span>
+            <span class="mq-item">THI CÔNG TRỌN GÓI</span><span class="mq-sep">★</span>
+            <span class="mq-item">NỘI THẤT CAO CẤP</span><span class="mq-sep">★</span>
+            <span class="mq-item">BIỆT THỰ SANG TRỌNG</span><span class="mq-sep">★</span>
+            <span class="mq-item">NHÀ PHỐ HIỆN ĐẠI</span><span class="mq-sep">★</span>
+            <span class="mq-item">VĂN PHÒNG ĐẲNG CẤP</span><span class="mq-sep">★</span>
+            <span class="mq-item">CAO ỐC THƯƠNG MẠI</span><span class="mq-sep">★</span>
+        </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════
+         VISUALIZER SECTION
+         ══════════════════════════════════════════════ -->
+    <section id="visualizer" class="py-5">
+        <div class="container py-4">
+            <div class="row align-items-center g-4 g-lg-5 mb-4">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <p style="color:var(--text-secondary);font-size:1.05rem;margin-bottom:1.5rem">
+                        <br>Biến bản vẽ tay, ảnh sketch thành phối cảnh sống động chỉ trong vài phút
+                        chỉ với vài cú nhấp chuột!
+                        <br>Trải nghiệm công cụ mô phỏng thiết kế đỉnh cao. Di chuyển thanh trượt để so sánh
+                        bản vẽ tay kỹ thuật với hình ảnh công trình hoàn thiện thực tế.
+                    </p>
+                    <div class="project-info-card">
+                        <h3 id="projectTitle" class="fs-4 mb-2" style="color:var(--text-primary)">Đang tải...</h3>
+                        <p id="projectDesc" class="small mb-3" style="color:var(--text-secondary)">Đang tải...</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="small fw-semibold" style="color:var(--text-secondary)">Chi phí ước tính:</span>
+                            <span id="projectCost" class="fw-bold fs-5" style="color:var(--primary)">0 VNĐ</span>
+                        </div>
+                    </div>
 
+                    <div class="text-center small mt-3" style="color:var(--text-muted)">
+                        <i class="bi bi-hand-index-thumb me-1" style="color:var(--primary)"></i>
+                        Kéo thanh trượt hoặc nhấn bản phác thảo góc trên để so sánh
+                    </div>
+                </div>
+
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div id="showcaseContainer" class="showcase-container">
+                        <div class="showcase-image-layer showcase-render"
+                            style="background-image:url('img/project_villa.png');"></div>
+                        <div id="showcaseSketch" class="showcase-image-layer showcase-sketch"
+                            style="background-image:url('img/sketch_villa.png');"></div>
+                        <div id="sliderBar" class="comparison-slider-bar">
+                            <div id="sliderHandle" class="comparison-handle">
+                                <i class="bi bi-arrows-left-right" style="color:#000;font-size:.8rem"></i>
+                            </div>
+                        </div>
+                        <div id="sketchPreview" class="sketch-preview-card" title="Click để chạy hiệu ứng quét bản vẽ">
+                            <img id="sketchPreviewImg" src="img/sketch_villa.png" class="sketch-preview-img"
+                                alt="Bản phác thảo thu nhỏ">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="categories-wrapper mt-4" data-aos="fade-up">
+                <h4 class="fs-6 text-uppercase text-center mb-3 fw-bold"
+                    style="color:var(--text-secondary);letter-spacing:.12em">Danh Mục Công Trình & Thiết Kế</h4>
+                <div class="categories-container">
+                    <div class="category-tab" data-cat="phong-khach"><i class="bi bi-layout-sidebar"></i><span>Phòng
+                            khách</span></div>
+                    <div class="category-tab" data-cat="phong-ngu"><i class="bi bi-box"></i><span>Phòng ngủ</span></div>
+                    <div class="category-tab" data-cat="cua-hang"><i class="bi bi-shop"></i><span>Cửa hàng</span></div>
+                    <div class="category-tab" data-cat="phong-tam"><i class="bi bi-water"></i><span>Phòng tắm</span>
+                    </div>
+                    <div class="category-tab" data-cat="nha-bep"><i class="bi bi-egg-fried"></i><span>Nhà bếp</span>
+                    </div>
+                    <div class="category-tab active" data-cat="nha-pho"><i class="bi bi-building"></i><span>Nhà
+                            phố</span></div>
+                    <div class="category-tab" data-cat="nha"><i class="bi bi-house-door"></i><span>Nhà Nhật</span></div>
+                    <div class="category-tab" data-cat="nha-co"><i class="bi bi-house"></i><span>Nhà cổ</span></div>
+                    <div class="category-tab" data-cat="biet-thu"><i class="bi bi-gem"></i><span>Biệt thự</span></div>
+                    <div class="category-tab" data-cat="cao-oc"><i class="bi bi-buildings-fill"></i><span>Cao ốc</span>
+                    </div>
+                    <div class="category-tab" data-cat="mall"><i class="bi bi-bag-heart"></i><span>Mall</span></div>
+                    <div class="category-tab" data-cat="van-phong"><i class="bi bi-briefcase"></i><span>Văn phòng</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         SERVICES SECTION
+         ══════════════════════════════════════════════ -->
+    <section id="services" class="py-5"
+        style="background:var(--bg-card);border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color)">
+        <div class="container py-4">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="section-label justify-content-center">
+                    <span class="sl-line"></span>
+                    ƯU THẾ CẠNH TRANH
+                    <span class="sl-line"></span>
+                </span>
+                <h2 class="display-5 display-font mt-2">Dịch Vụ Thiết Kế & Thi Công Trọn Gói</h2>
+                <p style="color:var(--text-secondary);max-width:540px;margin:0 auto">
+                    Chúng tôi đồng hành cùng khách hàng từ ý tưởng phác thảo đến khi trao chìa khóa bàn giao công trình
+                    hoàn mỹ.
+                </p>
+            </div>
+            <div class="row g-2 g-md-4">
+                <div class="col-4" data-aos="fade-up" data-aos-delay="0">
+                    <div class="premium-card service-card p-2 p-md-4 h-100">
+                        <div class="stat-icon-lux service-icon mb-2"><i class="bi bi-vector-pen"></i></div>
+                        <h4 class="service-title mb-1">1. Phác thảo</h4>
+                        <p class="text-secondary service-desc mb-0">Thiết kế sơ đồ công năng mặt bằng kiến trúc độc bản
+                            100% phù hợp phong thủy và yêu cầu từng gia chủ.</p>
+                    </div>
+                </div>
+                <div class="col-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="premium-card service-card p-2 p-md-4 h-100">
+                        <div class="stat-icon-lux service-icon mb-2"><i class="bi bi-card-image"></i></div>
+                        <h4 class="service-title mb-1">2. Dựng 3D</h4>
+                        <p class="text-secondary service-desc mb-0">Công nghệ Unreal Engine & Ray-Tracing thế hệ mới cho
+                            cái nhìn thực tế và sống động nhất trước khi xây dựng.</p>
+                    </div>
+                </div>
+                <div class="col-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="premium-card service-card p-2 p-md-4 h-100">
+                        <div class="stat-icon-lux service-icon mb-2"><i class="bi bi-tools"></i></div>
+                        <h4 class="service-title mb-1">3. Thi công</h4>
+                        <p class="text-secondary service-desc mb-0">Đội ngũ kỹ sư kinh nghiệm, giám sát tiến độ qua Hệ
+                            thống Quản Lý Tính Công lao động thông minh.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         CATALOG SECTION
+         ══════════════════════════════════════════════ -->
+    <section id="catalog" class="py-5">
+        <div class="catalog-film-strip"></div>
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-5" data-aos="fade-up">
+                <div>
+                    <span class="section-label">
+                        <span class="sl-line"></span>
+                        THƯ VIỆN BẢN VẼ
+                    </span>
+                    <h2 class="display-5 display-font mt-2">Mẫu Thiết Kế Thương Mại</h2>
+                </div>
+                <div class="btn-group rounded-pill overflow-hidden border"
+                    style="border-color:var(--border-color)!important" role="group">
+                    <button type="button" id="btnFilterActive" class="btn btn-outline-primary active btn-sm px-4">Theo
+                        bộ lọc</button>
+                    <button type="button" id="btnFilterAll" class="btn btn-outline-primary btn-sm px-4">Tất cả
+                        mẫu</button>
+                </div>
+            </div>
+            <div id="catalogGrid" class="row g-4">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border mb-2" role="status" style="color:var(--primary)"></div>
+                    <div style="color:var(--text-secondary)">Đang chuẩn bị danh mục thiết kế...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         AI LAB CTA
+         ══════════════════════════════════════════════ -->
+    <section id="pricing" class="py-5" style="background:var(--bg-card);border-top:1px solid var(--border-color)">
+        <div class="container">
+            <div class="ai-lab-card" data-aos="zoom-in">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-8">
+                        <span class="badge fw-bold mb-3 px-3 py-2 rounded"
+                            style="background:var(--primary);color:#050508;letter-spacing:.06em">CÔNG NGHỆ ĐỘT
+                            PHÁ</span>
+                        <h3 class="fs-2 mb-2 display-font">Thiết Kế Nhanh Bằng Trí Tuệ Nhân Tạo AI</h3>
+                        <p style="color:var(--text-secondary);margin-bottom:0">
+                            Tải lên bản vẽ nháp nguệch ngoạc của bạn, hệ thống AI độc quyền sẽ tự động phân tích không
+                            gian
+                            và tạo ra biệt thự nhà 3D thực tế chỉ trong 5 phút. Hãy trải nghiệm ngay hôm nay!
+                        </p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a href="#contact" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold glow-btn">
+                            Trải Nghiệm Studio AI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         CONTACT SECTION
+         ══════════════════════════════════════════════ -->
+    <section id="contact" class="py-5" style="border-top:1px solid var(--border-color)">
+        <div class="container py-4">
+            <div class="row g-5">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <span class="section-label">
+                        <span class="sl-line"></span>
+                        ĐỒNG HÀNH CÙNG BẠN
+                    </span>
+                    <h2 class="fs-2 mb-4 display-font mt-1">Đội Ngũ Kiến Trúc Sư Chuyên Nghiệp</h2>
+                    <p style="color:var(--text-secondary);margin-bottom:1.5rem">
+                        Chúng tôi sở hữu đội ngũ hơn 50 kiến trúc sư và kỹ sư xây dựng dày dặn kinh nghiệm, tận tâm
+                        kiến tạo những không gian sống đẳng cấp hàng đầu. Mọi quá trình thi công đều được quản lý
+                        khoa học, bảo đảm tiến độ chuẩn xác.
+                    </p>
+                    <div class="team-img-wrapper mb-4">
+                        <img src="img/team_construction.png" class="w-100 h-100 object-fit-cover"
+                            alt="Đội ngũ kỹ sư thiết kế công trình">
+                    </div>
+                    <div class="d-flex flex-column gap-3 small" style="color:var(--text-secondary)">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-geo-alt-fill fs-5" style="color:var(--primary)"></i>
+                            <span>Số nhà 62A - Xã Hà Tây - Thành phố Hải Phòng</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-telephone-fill fs-5" style="color:var(--primary)"></i>
+                            <span>Hotline: 0987.654.321 — Điện thoại: 028.3828.1990</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-envelope-at-fill fs-5" style="color:var(--primary)"></i>
+                            <span>contact@03tangconstruction.vn</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="premium-card p-4 p-md-5">
+                        <h3 class="fs-4 mb-2 display-font">Đăng Ký Nhận Tư Vấn Thiết Kế</h3>
+                        <p class="small mb-4" style="color:var(--text-secondary)">
+                            Để lại thông tin bên dưới, chuyên viên tư vấn sẽ liên hệ và báo giá thiết kế chi tiết
+                            trong vòng 2 giờ làm việc.
+                        </p>
+                        <form id="consultationForm" novalidate>
+                            <div class="mb-3">
+                                <label for="clientName" class="form-label small fw-semibold">
+                                    Họ và Tên <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control py-2" id="clientName" placeholder="Nguyễn Văn A"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="clientPhone" class="form-label small fw-semibold">
+                                    Số điện thoại <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" class="form-control py-2" id="clientPhone" placeholder="0987xxxxxx"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="projectType" class="form-label small fw-semibold">Hạng mục quan tâm</label>
+                                <select class="form-select py-2" id="projectType">
+                                    <option value="biet-thu">Thiết kế Biệt thự</option>
+                                    <option value="nha-pho" selected>Thiết kế Nhà phố / Chung cư</option>
+                                    <option value="van-phong">Thiết kế Văn phòng / Showroom</option>
+                                    <option value="khac">Yêu cầu khác...</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="clientMessage" class="form-label small fw-semibold">Ghi chú yêu cầu thêm
+                                    (nếu có)</label>
+                                <textarea class="form-control py-2" id="clientMessage" rows="3"
+                                    placeholder="Diện tích đất 5x20m, mong muốn xây dựng 3 tầng hiện đại..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold glow-btn">
+                                <i class="bi bi-send-fill me-1"></i> Gửi Yêu Cầu Cho Kiến Trúc Sư
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         FOOTER — End Credits
+         ══════════════════════════════════════════════ -->
+    <footer class="py-5">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <video src="img/logo_03tang.mp4" autoplay loop muted playsinline
+                            style="width:36px;height:36px;object-fit:contain;border-radius:8px"></video>
+                        <span class="fw-800 fs-5" style="font-family:'Cinzel',serif;color:var(--primary)">03.Tang
+                            Construction</span>
+                    </div>
+                    <p class="small" style="color:var(--text-secondary)">
+                        Đơn vị tư vấn thiết kế và thi công xây dựng trọn gói biệt thự, nhà phố, cao ốc hiện đại
+                        với độ hoàn mỹ cao nhất.
+                    </p>
+                </div>
+                <div class="col-6 col-lg-3 offset-lg-1">
+                    <h5 class="fs-6 mb-3 text-uppercase" style="letter-spacing:.12em;color:var(--primary)">Khám Phá</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><a href="#visualizer" class="hover-link">AI Sketch-to-Render</a></li>
+                        <li><a href="#services" class="hover-link">Tính năng & Dịch vụ</a></li>
+                        <li><a href="#catalog" class="hover-link">Mẫu thiết kế thương mại</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <h5 class="fs-6 mb-3 text-uppercase" style="letter-spacing:.12em;color:var(--primary)">Hệ Thống</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><a href="login.html" class="hover-link">Cổng Đăng Nhập Quản Trị</a></li>
+                        <li><a href="workers.html" class="hover-link">Quản lý Bảng Công Nhân</a></li>
+                        <li><a href="attendance.html" class="hover-link">Quản lý Bảng Chấm Công</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="opacity:.08;border-color:var(--primary)">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 small"
+                style="color:var(--text-secondary)">
+                <span>2026 &copy; E-WorkSheets Construction Lab. Mọi quyền được bảo lưu.</span>
+                <div class="d-flex gap-3 fs-5">
+                    <a href="#" class="hover-link"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="hover-link"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="hover-link"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="hover-link"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ══════════════════════════════════════════════
+         SCRIPTS
+         ══════════════════════════════════════════════ -->
+    <!-- Three.js r128 (UMD, stable) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
     <!-- Bootstrap JS -->
-    <script src="js/lib/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Face API -->
-    <script src="js/lib/face-api.min.js"></script>
-    <script src="js/face-auth.js"></script>
-
-    <!-- Auth module -->
-    <script src="js/auth.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-    <script src="js/storage.js"></script>
-
-    <script>
-        /* Redirect if already logged in */
-        if (authGetSession()) window.location.href = 'workers.html';
-
-        /* Toggle password */
-        document.getElementById('btnTogglePwd').addEventListener('click', () => {
-            const pwd = document.getElementById('loginPassword');
-            const icon = document.getElementById('eyeIcon');
-            const show = pwd.type === 'password';
-            pwd.type = show ? 'text' : 'password';
-            icon.className = show ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill';
-        });
-
-        /* Error helpers */
-        function showError(msg) {
-            const el = document.getElementById('loginError');
-            document.getElementById('loginErrorMsg').textContent = msg;
-            el.classList.remove('show');
-            void el.offsetWidth; // retrigger animation
-            el.classList.add('show');
-        }
-        function hideError() {
-            document.getElementById('loginError').classList.remove('show');
-        }
-
-        ['loginUsername', 'loginPassword'].forEach(id =>
-            document.getElementById(id).addEventListener('input', hideError)
-        );
-
-        /* Submit */
-        document.getElementById('loginForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            hideError();
-
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            if (!username) return showError('Vui lòng nhập tên đăng nhập.');
-            if (!password) return showError('Vui lòng nhập mật khẩu.');
-
-            const btn = document.getElementById('btnLogin');
-            btn.disabled = true;
-            document.getElementById('btnText').classList.add('d-none');
-            document.getElementById('btnLoading').classList.remove('d-none');
-
-            // Wait for DB response
-            const session = await authLogin(username, password);
-            if (!session) {
-                btn.disabled = false;
-                document.getElementById('btnText').classList.remove('d-none');
-                document.getElementById('btnLoading').classList.add('d-none');
-                showError('Tên đăng nhập hoặc mật khẩu không đúng.');
-                document.getElementById('loginPassword').value = '';
-                document.getElementById('loginPassword').focus();
-                return;
-            }
-
-            // Get account data to check face descriptor
-            // Đã có mật khẩu rồi thì vào luôn trang chủ
-            window.location.href = 'workers.html';
-        });
-
-
-        /* ── Face Login Logic (Auto Trigger) ── */
-        const faceLoginModalEl = document.getElementById('faceLoginModal');
-        const loginVideo = document.getElementById('loginVideoElement');
-        let faceLoginScanInterval = null;
-
-        // Tự động kích hoạt quét khi mở Modal
-        faceLoginModalEl.addEventListener('shown.bs.modal', async () => {
-            const overlay = document.getElementById('loginFaceOverlay');
-            const text = document.getElementById('loginFaceText');
-
-            text.classList.remove('d-none');
-            overlay.className = 'face-scan-overlay';
-
-            try {
-                // Hiệu ứng text sinh động
-                text.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang tải AI...';
-                await loadFaceModels();
-
-                text.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang bật Camera...';
-                const camReady = await startCamera(loginVideo);
-                if (!camReady) throw new Error("Lỗi mở camera");
-
-                overlay.className = 'face-scan-overlay scanning';
-                text.innerHTML = '<span class="spinner-border spinner-border-sm me-1 text-success"></span> Đang phân tích...';
-
-                // Cho UI kịp render chữ trước khi WebGL chạy nặng
-                await new Promise(r => setTimeout(r, 100));
-
-                let attempts = 0;
-                let isProcessing = false;
-
-                faceLoginScanInterval = setInterval(async () => {
-                    if (isProcessing) return;
-                    attempts++;
-
-                    if (attempts > 10) {
-                        clearInterval(faceLoginScanInterval);
-                        overlay.className = 'face-scan-overlay error';
-                        text.innerHTML = '<i class="bi bi-x-circle text-danger me-1"></i> Không nhận diện được khuôn mặt!';
-                        stopCamera(loginVideo);
-                        return;
-                    }
-
-                    isProcessing = true;
-
-                    try {
-                        let descriptor = await extractFaceDescriptor(loginVideo);
-                        if (descriptor) {
-                            text.innerHTML = '<span class="spinner-grow spinner-grow-sm me-1 text-info"></span> Đang đối chiếu dữ liệu...';
-
-                            const result = await authLoginWithFace(descriptor);
-
-                            if (result.success) {
-                                clearInterval(faceLoginScanInterval);
-                                overlay.className = 'face-scan-overlay success';
-                                text.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> Xin chào, ${result.user.fullname || result.user.username}!`;
-                                stopCamera(loginVideo);
-
-                                // Tạm dừng chạy code (nếu đang bật F12) để bạn có thời gian check console
-                                debugger;
-
-                                setTimeout(() => {
-                                    window.location.href = 'workers.html';
-                                }, 1200);
-                                return; // Kết thúc interval
-                            } else {
-                                text.innerHTML = '<span class="spinner-border spinner-border-sm me-1 text-warning"></span> Đang phân tích lại...';
-                                overlay.className = 'face-scan-overlay scanning error-border';
-                                // Không clear interval, để nó quét tiếp các giây còn lại
-                            }
-                        } else {
-                            // overlay quét bình thường
-                            overlay.className = 'face-scan-overlay scanning';
-                        }
-                    } catch (e) {
-                        console.error(e);
-                    }
-                    isProcessing = false;
-                }, 1000);
-
-            } catch (err) {
-                console.error(err);
-                text.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> ${err.message}`;
-                overlay.className = 'face-scan-overlay error';
-                stopCamera(loginVideo);
-            }
-        });
-
-        // Tắt camera khi đóng modal
-        faceLoginModalEl.addEventListener('hidden.bs.modal', () => {
-            stopCamera(loginVideo);
-            if (faceLoginScanInterval) clearInterval(faceLoginScanInterval);
-            document.getElementById('loginFaceOverlay').className = 'face-scan-overlay';
-            document.getElementById('loginFaceText').classList.add('d-none');
-        });
-
-        /* ── Mouse-tracking spotlight ── */
-        (function () {
-            const sp = document.getElementById('spotlight');
-            let tx = window.innerWidth / 2, ty = window.innerHeight / 2;
-            let cx = tx, cy = ty;
-
-            document.addEventListener('mousemove', e => {
-                tx = e.clientX;
-                ty = e.clientY;
-            });
-
-            function tick() {
-                // Smooth lerp
-                cx += (tx - cx) * 0.07;
-                cy += (ty - cy) * 0.07;
-                sp.style.background = `radial-gradient(
-                    circle 320px at ${cx}px ${cy}px,
-                    rgba(5,150,105,.22) 0%,
-                    rgba(5,150,105,.06) 40%,
-                    transparent 70%)`;
-                requestAnimationFrame(tick);
-            }
-            tick();
-        })();
-
-        /* ── Card tilt on mouse move ── */
-        (function () {
-            const card = document.querySelector('.glass-card');
-            document.addEventListener('mousemove', e => {
-                const rect = card.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                const dx = (e.clientX - cx) / (window.innerWidth / 2);
-                const dy = (e.clientY - cy) / (window.innerHeight / 2);
-                card.style.transform = `perspective(900px) rotateY(${dx * 4}deg) rotateX(${-dy * 4}deg)`;
-            });
-            document.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg)';
-            });
-        })();
-    </script>
+    <!-- Home Logic (Three.js + GSAP + All existing logic) -->
+    <script src="js/home.js?v=3.0.0"></script>
 </body>
 
 </html>

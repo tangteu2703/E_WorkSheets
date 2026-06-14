@@ -655,11 +655,17 @@ const projectData = {
         sketch: "img/sketch_japanese.png", render: "img/project_japanese.png",
         price: "1.2 - 2.8 Tỷ VNĐ"
     },
-    "biet-thu": {
+    "nha-co": {
         title: "Nhà Cổ 3 Gian Truyền Thống Việt Nam",
         description: "Tinh hoa kiến trúc truyền thống với nhà gỗ 3 gian mái ngói đỏ, cột gỗ lim vững chãi.",
         sketch: "img/sketch_traditional.png", render: "img/project_traditional.png",
         price: "2.5 - 5.5 Tỷ VNĐ"
+    },
+    "biet-thu": {
+        title: "Biệt Thự Hiện Đại Premium",
+        description: "Kiến trúc biệt thự hiện đại sang trọng, không gian mở ngập tràn ánh sáng với hồ bơi vô cực rộng lớn.",
+        sketch: "img/sketch_villa.png", render: "img/project_villa.png",
+        price: "5.0 - 15.0 Tỷ VNĐ"
     },
     "cao-oc": {
         title: "Tổ Hợp Chung Cư & Thương Mại",

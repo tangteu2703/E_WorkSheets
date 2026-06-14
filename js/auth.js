@@ -166,7 +166,7 @@ async function authUpdateFaceDescriptor(username, descriptor) {
 function authLogout() {
     sessionStorage.removeItem(SESSION_KEY);
     sessionStorage.removeItem(TOKEN_KEY);
-    window.location.href = 'index.html';
+    window.location.href = 'login.html';
 }
 
 /* ── Lấy session nếu token hợp lệ, ngược lại null ── */
@@ -193,6 +193,6 @@ function authGuard() {
         // Xóa sạch trước khi chuyển hướng
         sessionStorage.removeItem(SESSION_KEY);
         sessionStorage.removeItem(TOKEN_KEY);
-        window.location.replace('index.html');
+        window.location.replace('login.html');
     }
 }

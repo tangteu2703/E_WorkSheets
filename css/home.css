@@ -3,7 +3,7 @@
    Design: Awwwards-Level, Three.js, GSAP, Cinema Dark
    ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS CUSTOM PROPERTIES
@@ -34,14 +34,17 @@
 }
 
 [data-theme="light"] {
-    --bg-main: #0d0b10;
-    --bg-card: rgba(18, 14, 26, 0.9);
-    --bg-cinema: #0d0b10;
-    --border-color: rgba(232, 160, 32, 0.18);
-    --text-primary: #f0ece0;
-    --text-secondary: #a89f8a;
-    --text-muted: #6b6355;
-    --glow-color: rgba(232, 160, 32, 0.25);
+    --bg-main: #faf7f2;
+    --bg-card: rgba(255, 252, 245, 0.95);
+    --bg-cinema: #f5f0e8;
+    --border-color: rgba(180, 120, 20, 0.2);
+    --border-subtle: rgba(0, 0, 0, 0.07);
+    --text-primary: #1a1208;
+    --text-secondary: #5a4a30;
+    --text-muted: #9a8870;
+    --glass-blur: 20px;
+    --card-shadow: 0 30px 60px rgba(0, 0, 0, .12), 0 0 0 1px rgba(180, 120, 20, .08);
+    --glow-color: rgba(232, 160, 32, 0.15);
 }
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -66,7 +69,171 @@ body {
     /* Film grain overlay */
     background-image:
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(232, 160, 32, .08) 0%, transparent 60%);
+    /* Smooth theme transition */
+    transition: background-color 0.35s ease, color 0.35s ease;
 }
+
+/* Light mode: brighter body background, no dark grain */
+[data-theme="light"] body,
+body[data-theme="light"] {
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(232, 160, 32, .06) 0%, transparent 60%);
+}
+
+/* Light mode: Navbar */
+[data-theme="light"] .glass-navbar {
+    background: rgba(250, 247, 242, 0.96) !important;
+    border-bottom-color: rgba(180, 120, 20, 0.2);
+    box-shadow: 0 4px 40px rgba(0, 0, 0, .08);
+}
+
+[data-theme="light"] .glass-navbar.scrolled {
+    background: rgba(245, 240, 232, 0.99) !important;
+    border-bottom-color: rgba(180, 120, 20, 0.3);
+}
+
+[data-theme="light"] .nav-link-custom {
+    color: var(--text-secondary);
+}
+
+/* Light mode: Film strip ticker */
+[data-theme="light"] .film-strip-global {
+    background: #1a1208;
+}
+
+/* Light mode: sections */
+[data-theme="light"] #services,
+[data-theme="light"] #pricing {
+    background: rgba(235, 228, 215, 0.7) !important;
+}
+
+/* Light mode: footer */
+[data-theme="light"] footer {
+    background: #1a1208;
+    color: #f0ece0;
+}
+
+[data-theme="light"] footer .hover-link {
+    color: #a89f8a;
+}
+
+/* Light mode: form controls */
+[data-theme="light"] .form-control,
+[data-theme="light"] .form-select {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(180, 120, 20, 0.25);
+    color: #1a1208;
+}
+
+[data-theme="light"] .form-control:focus,
+[data-theme="light"] .form-select:focus {
+    background: #fff;
+    border-color: var(--primary);
+    color: #1a1208;
+    box-shadow: 0 0 0 3px rgba(232, 160, 32, 0.15);
+}
+
+[data-theme="light"] .form-label {
+    color: var(--text-primary);
+}
+
+/* Light mode: Hero section - override hardcoded dark background */
+[data-theme="light"] .cinema-hero {
+    background: radial-gradient(ellipse 100% 60% at 50% 0%, #f5ead0 0%, #faf7f2 55%);
+}
+
+/* Light mode: hero curtain edges - lighter */
+[data-theme="light"] .hero-curtain-edge-left {
+    background: linear-gradient(90deg,
+        rgba(100, 50, 0, .35) 0%,
+        rgba(80, 30, 0, .15) 40%,
+        transparent 100%);
+}
+[data-theme="light"] .hero-curtain-edge-right {
+    background: linear-gradient(270deg,
+        rgba(100, 50, 0, .35) 0%,
+        rgba(80, 30, 0, .15) 40%,
+        transparent 100%);
+}
+
+/* Light mode: hero text - keep readable on light bg */
+[data-theme="light"] .hero-line-1 {
+    color: #1a1208;
+    text-shadow: 0 0 40px rgba(232, 160, 32, .2);
+}
+
+[data-theme="light"] .hero-eyebrow {
+    background: rgba(232, 160, 32, .12);
+    border-color: rgba(180, 120, 20, .35);
+    color: #8a5c0a;
+}
+
+/* Light mode: stats bar */
+[data-theme="light"] .hero-stats-bar {
+    background: rgba(250, 247, 242, 0.88);
+    border-top-color: rgba(180, 120, 20, 0.15);
+}
+
+/* Light mode: premium cards */
+[data-theme="light"] .premium-card {
+    background: rgba(255, 252, 245, 0.95);
+    border-color: rgba(180, 120, 20, 0.15);
+    box-shadow: 0 8px 32px rgba(0,0,0,.08);
+}
+
+/* Light mode: project info card */
+[data-theme="light"] .project-info-card {
+    background: rgba(245, 240, 228, 0.9);
+    border-color: rgba(180, 120, 20, 0.2);
+}
+
+/* Light mode: showcase comparison */
+[data-theme="light"] .showcase-container {
+    box-shadow: 0 20px 60px rgba(0,0,0,.15);
+}
+
+/* Light mode: category tabs */
+[data-theme="light"] .category-tab {
+    background: rgba(232, 160, 32, .06);
+    border-color: rgba(180, 120, 20, .15);
+    color: var(--text-secondary);
+}
+[data-theme="light"] .category-tab.active,
+[data-theme="light"] .category-tab:hover {
+    background: rgba(232, 160, 32, .15);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Light mode: catalog cards */
+[data-theme="light"] .catalog-card {
+    background: rgba(255, 252, 245, 0.98);
+    border-color: rgba(180, 120, 20, .12);
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+}
+
+/* Light mode: AI lab card */
+[data-theme="light"] .ai-lab-card {
+    background: linear-gradient(135deg, rgba(235, 220, 185, 0.8), rgba(250, 240, 215, 0.9));
+    border-color: rgba(180, 120, 20, 0.25);
+}
+
+/* Transition for all background/color props */
+*, *::before, *::after {
+    transition-property: background-color, border-color, color, box-shadow;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+}
+
+/* But keep animations/transforms unaffected */
+.curtain, .marquee-track, .fsg-ticker, #threeCanvas,
+.preloader-countdown span, .scroll-wheel,
+.comparison-slider-bar, [class*="catalog-"],
+[class*="preloader"] {
+    transition: none !important;
+}
+
+
 
 /* Film grain â€” lightweight static PNG overlay instead of SVG filter */
 body::after {
@@ -543,8 +710,8 @@ h6,
 }
 
 .hero-title {
-    font-family: 'Cinzel', serif !important;
-    font-size: clamp(2.4rem, 6vw, 5.2rem);
+    font-family: 'Playfair Display', serif !important;
+    font-size: clamp(1.8rem, 4.5vw, 3.5rem);
     font-weight: 900;
     line-height: 1.08;
     letter-spacing: .04em;
