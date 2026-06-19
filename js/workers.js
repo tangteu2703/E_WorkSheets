@@ -143,6 +143,7 @@ const WorkersModule = (() => {
         }
         $('wk-name-field').classList.remove('is-invalid');
 
+        const existingWorker = editingId ? workers.find(w => w.id === editingId) : null;
         const payload = {
             id: $('wk-id-field').value,
             hoTen: name,
@@ -151,6 +152,7 @@ const WorkersModule = (() => {
             chucVu: $('wk-pos-field').value.trim(),
             soDienThoai: $('wk-phone-field').value.trim(),
             trangThai: $('wk-status-field').value,
+            luongCB: existingWorker ? existingWorker.luongCB : 0
         };
 
         if (editingId) {
