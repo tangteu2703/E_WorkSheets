@@ -28,7 +28,7 @@ const AdvancesModule = (() => {
         const mobileList = $('adv-mobile-list');
 
         let filtered = advances.filter(a => {
-            const w = workers.find(x => x.id === a.workerId);
+            const w = allWorkers.find(x => x.id === a.workerId);
             const wName = w ? w.hoTen : 'Không rõ';
 
             const q = searchQuery.toLowerCase();
@@ -43,11 +43,20 @@ const AdvancesModule = (() => {
         // Sắp xếp theo ngày ứng (mới nhất lên đầu)
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Tính tổng tiền báo cáo
-        const totalAmount = filtered.reduce((sum, a) => sum + (a.amount || 0), 0);
-        if ($('adv-total-amount')) {
-            $('adv-total-amount').textContent = formatCurrency(totalAmount) + ' VNĐ';
-        }
+        // Tính tổng tiền tách biệt Chủ nhà / Công nhân
+        let totalOwner = 0, totalWorker = 0;
+        filtered.forEach(a => {
+            const w = allWorkers.find(x => x.id === a.workerId);
+            if (w && w.trangThai === 'owner') {
+                totalOwner += (a.amount || 0);
+            } else {
+                totalWorker += (a.amount || 0);
+            }
+        });
+        if ($('adv-total-owner'))  $('adv-total-owner').textContent  = formatCurrency(totalOwner)  + ' VNĐ';
+        if ($('adv-total-worker')) $('adv-total-worker').textContent = formatCurrency(totalWorker) + ' VNĐ';
+        // Fallback cho layout cũ nếu vẫn còn element
+        if ($('adv-total-amount')) $('adv-total-amount').textContent = formatCurrency(totalOwner + totalWorker) + ' VNĐ';
 
         if (!filtered.length) {
             const emptyHtml = `<div class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>Không có phiếu ứng nào trong năm ${filterYear}</div>`;
@@ -58,11 +67,14 @@ const AdvancesModule = (() => {
 
         tbody.innerHTML = filtered.map((a, i) => {
             const w = allWorkers.find(x => x.id === a.workerId);
-            const isInactive = w && w.trangThai !== 'active';
-            const isDeleted = !w;
+            const isOwner   = w && w.trangThai === 'owner';
+            const isInactive = w && w.trangThai === 'inactive';
+            const isDeleted  = !w;
             let wName;
             if (isDeleted) {
                 wName = `<span class="text-danger">Không rõ (${a.workerId})</span>`;
+            } else if (isOwner) {
+                wName = `${w.hoTen} <span class="badge ms-1" style="background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:600"><i class="bi bi-house-fill me-1" style="font-size:.6rem"></i>Chủ nhà</span>`;
             } else if (isInactive) {
                 wName = `${w.hoTen} <span class="badge text-bg-secondary ms-1" style="font-size:.7rem;font-weight:500">Nghỉ việc</span>`;
             } else {
@@ -91,11 +103,14 @@ const AdvancesModule = (() => {
         if (mobileList) {
             mobileList.innerHTML = filtered.map((a, i) => {
                 const w = allWorkers.find(x => x.id === a.workerId);
-                const isInactive = w && w.trangThai !== 'active';
-                const isDeleted = !w;
+                const isOwner    = w && w.trangThai === 'owner';
+                const isInactive = w && w.trangThai === 'inactive';
+                const isDeleted  = !w;
                 let wName;
                 if (isDeleted) {
                     wName = `Không rõ (${a.workerId})`;
+                } else if (isOwner) {
+                    wName = `${w.hoTen} (Chủ nhà)`;
                 } else if (isInactive) {
                     wName = `${w.hoTen} (Nghỉ việc)`;
                 } else {

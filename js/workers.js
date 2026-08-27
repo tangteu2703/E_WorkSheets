@@ -52,6 +52,8 @@ const WorkersModule = (() => {
         <td class="d-none d-md-table-cell">
           ${w.trangThai === 'active'
             ? `<span class="badge" style="background:#dcfce7;color:#15803d;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Đang làm</span>`
+            : w.trangThai === 'owner'
+            ? `<span class="badge" style="background:#fef3c7;color:#92400e;font-weight:600;font-size:.78rem"><i class="bi bi-house-fill me-1" style="font-size:.65rem"></i>Chủ nhà</span>`
             : `<span class="badge" style="background:#fee2e2;color:#b91c1c;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Nghỉ việc</span>`
           }
         </td>
@@ -98,6 +100,8 @@ const WorkersModule = (() => {
                     <i class="bi bi-toggle-on text-secondary"></i>
                     ${w.trangThai === 'active'
                         ? `<span class="badge" style="background:#dcfce7;color:#15803d;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Đang làm</span>`
+                        : w.trangThai === 'owner'
+                        ? `<span class="badge" style="background:#fef3c7;color:#92400e;font-weight:600;font-size:.78rem"><i class="bi bi-house-fill me-1" style="font-size:.65rem"></i>Chủ nhà</span>`
                         : `<span class="badge" style="background:#fee2e2;color:#b91c1c;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Nghỉ việc</span>`
                     }
                 </div>
