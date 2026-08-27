@@ -843,62 +843,79 @@ body.sidebar-collapsed #main-content {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 700;
-    font-size: .78rem;
-    transition: transform .12s, box-shadow .12s;
+    font-size: .8rem;
+    transition: all .15s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
     margin: 0 auto;
+    border: 1px solid transparent;
 }
 
 .att-cell:hover {
-    transform: scale(1.2);
-    box-shadow: var(--shadow-sm);
+    transform: scale(1.18);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
     z-index: 5;
     position: relative;
 }
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
-    z-index: 2;
-}
 
+/* Ô trống ngày thường: Có nền xám sáng nhẹ và viền bo rõ ràng */
 .att-cell.c-empty {
     background: #f1f5f9;
+    border-color: #e2e8f0;
     color: #94a3b8;
 }
 
-.att-cell.c-full {
-    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-    color: #065f46;
-    box-shadow: 0 2px 6px rgba(16, 185, 129, .2);
-}
-
-.att-cell.c-half {
-    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-    color: #5b21b6;
-    box-shadow: 0 2px 6px rgba(124, 58, 237, .2);
-}
-
-.att-cell.c-off {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
-    color: #991b1b;
-}
-
-.att-cell.c-sun {
+/* Ô trống ngày Chủ Nhật: Có nền vàng ấm và viền vàng cam nhẹ */
+.att-cell.c-sun,
+.att-cell.c-empty.c-sun {
     background: #fef3c7;
-    color: #92400e;
+    border-color: #fde68a;
+    color: #d97706;
 }
 
+/* 1 - Cả ngày: Màu xanh ngọc lục bảo rực rỡ, chữ trắng nổi bật */
+.att-cell.c-full {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    border-color: #047857 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, .35);
+}
+
+/* 0.5 - Nửa ngày: Màu tím hoàng gia rực rỡ, chữ trắng nổi bật */
+.att-cell.c-half {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+    border-color: #6d28d9 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, .35);
+}
+
+/* 0 - Nghỉ: Màu đỏ san hô rực rỡ, chữ trắng nổi bật */
+.att-cell.c-off {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    border-color: #b91c1c !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, .35);
+}
+
+/* Khi chấm vào ngày Chủ Nhật: Màu đậm đà hơn */
 .att-cell.c-full.c-sun {
-    background: linear-gradient(135deg, #bbf7d0, #6ee7b7);
-    color: #064e3b;
+    background: linear-gradient(135deg, #059669, #047857) !important;
+    border-color: #065f46 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, .4);
 }
 
 .att-cell.c-half.c-sun {
-    background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
-    color: #4c1d95;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+    border-color: #5b21b6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, .4);
 }
 
 .att-cell.c-off.c-sun {
-    background: #fca5a5;
-    color: #7f1d1d;
+    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+    border-color: #991b1b !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, .4);
 }
 
 /* ----------------------------------------------------------------
