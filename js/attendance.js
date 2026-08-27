@@ -166,7 +166,8 @@ const AttendanceModule = (() => {
 
         /* 2-Row Header: Hàng 1 là Dương Lịch, Hàng 2 là Âm Lịch */
         let thSolarRow = `<th class="th-stt col-stt" rowspan="2">#</th>`;
-        thSolarRow += `<th class="th-name col-name" rowspan="2">Công nhân</th>`;
+        thSolarRow += `<th class="th-code col-code" rowspan="2">Mã NV</th>`;
+        thSolarRow += `<th class="th-name col-name" rowspan="2">Họ và Tên</th>`;
         thSolarRow += `<th class="th-total col-total" rowspan="2">Tổng</th>`;
 
         let thLunarRow = '';
@@ -199,7 +200,7 @@ const AttendanceModule = (() => {
 
         /* Body rows */
         if (!filteredWorkers.length) {
-            tbody.innerHTML = `<tr><td colspan="${daysInMonth + 3}" style="text-align:center;padding:2rem;color:var(--text-muted)">Không tìm thấy công nhân phù hợp</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="${daysInMonth + 4}" style="text-align:center;padding:2rem;color:var(--text-muted)">Không tìm thấy công nhân phù hợp</td></tr>`;
             return;
         }
 
@@ -222,11 +223,13 @@ const AttendanceModule = (() => {
 
             return `<tr>
                 <td class="stt-cell text-muted text-center align-middle" style="font-size:.8rem">${index + 1}</td>
-                <td class="name-cell">
-                  <span style="font-size:.75rem;color:var(--text-muted)">${w.id}</span>
-                  <div>${w.hoTen}</div>
+                <td class="code-cell text-center align-middle">
+                    <span class="badge bg-light text-primary fw-bold border" style="font-size:.74rem">${w.id}</span>
                 </td>
-                <td class="total-cell td-total att-total-${w.id}">${formatTotal(total)}</td>
+                <td class="name-cell align-middle">
+                    <div class="fw-semibold text-dark">${w.hoTen}</div>
+                </td>
+                <td class="total-cell td-total att-total-${w.id} text-center align-middle">${formatTotal(total)}</td>
                 ${cells}
             </tr>`;
         }).join('');
@@ -341,14 +344,14 @@ const AttendanceModule = (() => {
         aoaData.push([]); // Dòng trống
 
         // 2. Dòng Header 1: Dương Lịch
-        const headerSolar = ['STT', 'Mã - Tên công nhân', 'Tổng'];
+        const headerSolar = ['STT', 'Mã NV', 'Họ và tên', 'Tổng'];
         days.forEach(d => {
             headerSolar.push(d.solarFormatted + ' (DL)');
         });
         aoaData.push(headerSolar);
 
         // 3. Dòng Header 2: Âm Lịch
-        const headerLunar = ['', '', ''];
+        const headerLunar = ['', '', '', ''];
         days.forEach(d => {
             headerLunar.push(`M.${d.lunarDay}`);
         });
@@ -365,7 +368,8 @@ const AttendanceModule = (() => {
             let total = 0;
             const row = [
                 index + 1,
-                `${w.id} - ${w.hoTen}`
+                w.id,
+                w.hoTen
             ];
 
             const daysData = [];
@@ -390,8 +394,9 @@ const AttendanceModule = (() => {
 
         const cols = [
             { wch: 5 },   // STT
-            { wch: 30 },  // Name
-            { wch: 8 },   // Total
+            { wch: 10 },  // Mã NV
+            { wch: 25 },  // Họ tên
+            { wch: 8 },   // Tổng
         ];
         for (let d = 1; d <= daysInMonth; d++) {
             cols.push({ wch: 6 }); // Day columns
@@ -400,10 +405,11 @@ const AttendanceModule = (() => {
 
         // Merge Title & Headers
         if (!ws['!merges']) ws['!merges'] = [];
-        ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: daysInMonth + 2 } });
+        ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: daysInMonth + 3 } });
         ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 3, c: 0 } }); // Merge STT
-        ws['!merges'].push({ s: { r: 2, c: 1 }, e: { r: 3, c: 1 } }); // Merge Name
-        ws['!merges'].push({ s: { r: 2, c: 2 }, e: { r: 3, c: 2 } }); // Merge Total
+        ws['!merges'].push({ s: { r: 2, c: 1 }, e: { r: 3, c: 1 } }); // Merge Mã NV
+        ws['!merges'].push({ s: { r: 2, c: 2 }, e: { r: 3, c: 2 } }); // Merge Họ tên
+        ws['!merges'].push({ s: { r: 2, c: 3 }, e: { r: 3, c: 3 } }); // Merge Tổng
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, `T${currentMonth}${leapStr} AL`);
@@ -433,8 +439,8 @@ const AttendanceModule = (() => {
         const daysInMonth = days.length;
 
         // Prepare headers (2 rows)
-        const headRow1 = ['STT', 'Ten cong nhan', 'Tong'];
-        const headRow2 = ['', '', ''];
+        const headRow1 = ['STT', 'Ma NV', 'Ho va ten', 'Tong'];
+        const headRow2 = ['', '', '', ''];
         days.forEach(d => {
             headRow1.push(d.solarFormatted);
             headRow2.push(d.lunarDay.toString());
@@ -451,7 +457,8 @@ const AttendanceModule = (() => {
             let total = 0;
             const row = [
                 (index + 1).toString(),
-                `${w.id} - ${removeAccents(w.hoTen)}`,
+                w.id,
+                removeAccents(w.hoTen),
             ];
 
             const daysData = [];
@@ -494,14 +501,15 @@ const AttendanceModule = (() => {
                 fontStyle: 'bold'
             },
             columnStyles: {
-                0: { cellWidth: 26 },
-                1: { halign: 'left', cellWidth: 110 },
-                2: { fontStyle: 'bold', textColor: [5, 150, 105], cellWidth: 32 }
+                0: { cellWidth: 24 },
+                1: { halign: 'center', cellWidth: 44 },
+                2: { halign: 'left', cellWidth: 105 },
+                3: { fontStyle: 'bold', textColor: [5, 150, 105], cellWidth: 32 }
             },
             didParseCell: function (data) {
                 // Highlight Sunday in head
-                if (data.section === 'head' && data.column.index > 2) {
-                    const dayIdx = data.column.index - 3;
+                if (data.section === 'head' && data.column.index > 3) {
+                    const dayIdx = data.column.index - 4;
                     const dInfo = days[dayIdx];
                     if (dInfo && dInfo.isSunday) {
                         data.cell.styles.fillColor = [254, 243, 199];
@@ -510,9 +518,9 @@ const AttendanceModule = (() => {
                 }
 
                 // Style body cells
-                if (data.section === 'body' && data.column.index > 2) {
+                if (data.section === 'body' && data.column.index > 3) {
                     const val = data.cell.raw;
-                    const dayIdx = data.column.index - 3;
+                    const dayIdx = data.column.index - 4;
                     const dInfo = days[dayIdx];
                     const isSun = dInfo ? dInfo.isSunday : false;
 
