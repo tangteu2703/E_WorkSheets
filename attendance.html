@@ -114,40 +114,41 @@
 
             <!-- Toolbar -->
             <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
-                <div class="card-body py-2 px-3 px-md-4 d-flex align-items-center flex-wrap gap-3">
-                    <div class="d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0">
-                        <label class="fw-semibold small text-muted mb-0">Tháng</label>
-                        <select id="att-month" class="form-select form-select-sm w-100" style="max-width:120px">
-                            <option value="1">Tháng 1</option>
-                            <option value="2">Tháng 2</option>
-                            <option value="3">Tháng 3</option>
-                            <option value="4">Tháng 4</option>
-                            <option value="5">Tháng 5</option>
-                            <option value="6">Tháng 6</option>
-                            <option value="7">Tháng 7</option>
-                            <option value="8">Tháng 8</option>
-                            <option value="9">Tháng 9</option>
-                            <option value="10">Tháng 10</option>
-                            <option value="11">Tháng 11</option>
-                            <option value="12">Tháng 12</option>
-                        </select>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0">
-                        <label class="fw-semibold small text-muted mb-0">Năm</label>
-                        <input id="att-year" type="number" class="form-control form-control-sm w-100"
-                            style="max-width:120px" min="2020" max="2099" />
-                    </div>
-                    <div class="d-flex align-items-center gap-2 ms-md-3 w-100 w-md-auto"
-                        style="flex: 1 1 auto; max-width: 320px;">
-                        <div class="input-group input-group-sm w-100">
-                            <span class="input-group-text bg-white border-end-0 text-muted">
-                                <i class="bi bi-search"></i>
-                            </span>
-                            <input type="text" id="att-search" class="form-control border-start-0 ps-0 w-100"
-                                placeholder="Tìm tên/Mã công nhân...">
+                <div class="card-body py-2 px-3 px-md-4 d-flex align-items-center justify-content-between flex-wrap flex-lg-nowrap gap-3">
+                    <div class="d-flex align-items-center flex-wrap flex-sm-nowrap gap-2 gap-md-3 flex-grow-1 flex-lg-grow-0">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="fw-semibold small text-muted mb-0">Tháng</label>
+                            <select id="att-month" class="form-select form-select-sm" style="width:115px">
+                                <option value="1">Tháng 1</option>
+                                <option value="2">Tháng 2</option>
+                                <option value="3">Tháng 3</option>
+                                <option value="4">Tháng 4</option>
+                                <option value="5">Tháng 5</option>
+                                <option value="6">Tháng 6</option>
+                                <option value="7">Tháng 7</option>
+                                <option value="8">Tháng 8</option>
+                                <option value="9">Tháng 9</option>
+                                <option value="10">Tháng 10</option>
+                                <option value="11">Tháng 11</option>
+                                <option value="12">Tháng 12</option>
+                            </select>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="fw-semibold small text-muted mb-0">Năm</label>
+                            <input id="att-year" type="number" class="form-control form-control-sm"
+                                style="width:95px" min="2020" max="2099" />
+                        </div>
+                        <div class="d-flex align-items-center flex-grow-1" style="min-width:200px; max-width:300px;">
+                            <div class="input-group input-group-sm w-100">
+                                <span class="input-group-text bg-white border-end-0 text-muted">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" id="att-search" class="form-control border-start-0 ps-0"
+                                    placeholder="Tìm tên/Mã công nhân...">
+                            </div>
                         </div>
                     </div>
-                    <div class="d-flex gap-2 flex-nowrap ms-md-auto align-items-center pb-2 pb-md-0 overflow-auto w-100 w-md-auto"
+                    <div class="d-flex gap-2 flex-nowrap ms-lg-auto align-items-center overflow-auto py-1"
                         style="white-space: nowrap;">
                         <span class="badge px-3 py-2 text-nowrap"
                             style="background:rgba(18,183,106,.12);color:#065f46;font-size:.78rem;border-radius:20px">1
@@ -167,27 +168,26 @@
 
             <!-- Attendance grid card -->
             <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-delay="60">
-                <div
-                    class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-3 py-2 px-3 px-md-4">
-                    <span id="att-summary" class="fw-bold text-primary small w-100 w-md-auto mb-2 mb-md-0">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap gap-2 gap-md-3 py-2 px-3 px-md-4">
+                    <span id="att-summary" class="fw-bold text-primary small text-truncate me-auto">
                         <i class="bi bi-info-circle me-1"></i>
                     </span>
-                    <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-start justify-content-md-end">
+                    <div class="d-flex align-items-center gap-2 ms-auto flex-nowrap overflow-x-auto py-1">
                         <button id="att-btn-export-excel"
-                            class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center gap-1 px-3 flex-grow-1 flex-md-grow-0">
+                            class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap">
                             <i class="bi bi-file-earmark-excel-fill"></i> <span class="d-none d-sm-inline">Xuất</span>
                             Excel
                         </button>
                         <button id="att-btn-export-pdf"
-                            class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center gap-1 px-3 flex-grow-1 flex-md-grow-0">
+                            class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap">
                             <i class="bi bi-file-earmark-pdf-fill"></i> <span class="d-none d-sm-inline">Xuất</span> PDF
                         </button>
                         <button id="att-btn-clear"
-                            class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 ms-md-2 flex-grow-1 flex-md-grow-0">
+                            class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap">
                             <i class="bi bi-arrow-counterclockwise"></i> <span class="d-none d-sm-inline">Xóa</span>
                         </button>
                         <button id="att-btn-save"
-                            class="btn btn-sm btn-primary d-flex align-items-center justify-content-center gap-1 px-3 flex-grow-1 flex-md-grow-0">
+                            class="btn btn-sm btn-primary d-flex align-items-center justify-content-center gap-1 px-3 text-nowrap">
                             <i class="bi bi-floppy-fill"></i> Lưu <span class="d-none d-sm-inline">bảng công</span>
                         </button>
                     </div>

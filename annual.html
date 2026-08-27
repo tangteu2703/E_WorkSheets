@@ -105,44 +105,96 @@
        ================================================== -->
         <section id="sec-annual">
 
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div class="d-flex align-items-center justify-content-between gap-3 mb-4">
                 <div data-aos="fade-right">
                     <h2 class="page-title"><i class="bi bi-bar-chart-fill"></i>Tổng Hợp Theo Năm</h2>
                     <p class="page-subtitle mb-0">Tổng ngày công cả năm từng công nhân</p>
                 </div>
-                <!-- Box Năm nằm trên cùng một dòng ở laptop, rớt dòng và full chiều rộng ở di động -->
-                <div class="d-flex align-items-center gap-2 w-100 w-sm-auto justify-content-start justify-content-sm-end"
-                    data-aos="fade-left">
+                <div class="d-flex align-items-center gap-2 ms-auto flex-shrink-0" data-aos="fade-left">
                     <label class="fw-semibold small text-muted mb-0">Năm</label>
-                    <input id="ann-year" type="number" class="form-control form-control-sm w-100 w-sm-auto"
-                        style="max-width:120px" min="2020" max="2099" />
+                    <input id="ann-year" type="number" class="form-control form-control-sm"
+                        style="width: 100px;" min="2020" max="2099" />
                 </div>
             </div>
 
             <!-- Top Summary Row -->
             <div class="row g-3 mb-4">
-                <!-- Top 3 -->
-                <div class="col-12 col-xl-6" data-aos="fade-up" data-aos-delay="0">
+                <!-- Card 1: Tổng quan toàn đội -->
+                <div class="col-12 col-lg-4" data-aos="fade-up" data-aos-delay="0">
                     <div class="card border-0 shadow-sm h-100" style="border-radius:16px!important">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold mb-3" style="color:var(--primary-dark)"><i
-                                    class="bi bi-trophy-fill text-warning me-2"></i>Top 3 Chuyên Cần</h5>
-                            <div id="ann-top3-list" class="d-flex flex-column gap-2">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <h5 class="fw-bold mb-3" style="color:#0284c7">
+                                <i class="bi bi-pie-chart-fill text-info me-2"></i>Tổng Quan Năm (<span id="ann-overview-year"></span>)
+                            </h5>
+                            <div class="d-flex flex-column gap-2 flex-grow-1 justify-content-between">
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded"
+                                    style="background:#f0f9ff; border: 1px solid rgba(2,132,199,0.12)">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="fs-4">📊</span>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size:.92rem">Tổng ngày công</div>
+                                            <div class="text-muted" style="font-size:.75rem">Toàn bộ công nhân</div>
+                                        </div>
+                                    </div>
+                                    <div class="fw-bold text-primary" style="font-size:1.15rem">
+                                        <span id="ann-stat-grand-total">0</span> <span class="fw-normal" style="font-size:.75rem;opacity:.7">công</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded"
+                                    style="background:#f8fafc; border: 1px solid rgba(0,0,0,0.05)">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="fs-4">⚡</span>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size:.92rem">Trung bình / tháng</div>
+                                            <div class="text-muted" style="font-size:.75rem">Năng suất toàn đội</div>
+                                        </div>
+                                    </div>
+                                    <div class="fw-bold text-dark" style="font-size:1.05rem">
+                                        <span id="ann-stat-avg-month">0</span> <span class="fw-normal" style="font-size:.75rem;opacity:.7">công/th</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded"
+                                    style="background:#ecfdf5; border: 1px solid rgba(16,185,129,0.15)">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="fs-4">🏆</span>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size:.92rem">Tháng cao điểm</div>
+                                            <div class="text-muted" style="font-size:.75rem">Đạt công cao nhất</div>
+                                        </div>
+                                    </div>
+                                    <div class="fw-bold text-success" style="font-size:1rem" id="ann-stat-peak-month">
+                                        —
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Top 3 Chuyên Cần -->
+                <div class="col-12 col-lg-4" data-aos="fade-up" data-aos-delay="60">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius:16px!important">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <h5 class="fw-bold mb-3" style="color:var(--primary-dark)">
+                                <i class="bi bi-trophy-fill text-warning me-2"></i>Top 3 Chuyên Cần
+                            </h5>
+                            <div id="ann-top3-list" class="d-flex flex-column gap-2 flex-grow-1 justify-content-between">
                                 <div class="text-muted small">Đang tải...</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Top 3 Advances -->
-                <div class="col-12 col-xl-6" data-aos="fade-up" data-aos-delay="60">
+                <!-- Card 3: Top 3 Ứng Tiền -->
+                <div class="col-12 col-lg-4" data-aos="fade-up" data-aos-delay="120">
                     <div class="card border-0 shadow-sm h-100" style="border-radius:16px!important;">
                         <div class="card-body p-4 d-flex flex-column">
-                            <h5 class="fw-bold mb-3" style="color:var(--danger)"><i
-                                    class="bi bi-cash-stack text-danger me-2"></i>Top 3 Ứng Tiền (<span
-                                    id="ann-adv-year"></span>)</h5>
-                            <div id="ann-top3-adv-list"
-                                class="d-flex flex-column gap-2 flex-grow-1 justify-content-center">
+                            <h5 class="fw-bold mb-3" style="color:var(--danger)">
+                                <i class="bi bi-cash-stack text-danger me-2"></i>Top 3 Ứng Tiền (<span id="ann-adv-year"></span>)
+                            </h5>
+                            <div id="ann-top3-adv-list" class="d-flex flex-column gap-2 flex-grow-1 justify-content-between">
                                 <div class="text-muted small">Đang tải...</div>
                             </div>
                         </div>

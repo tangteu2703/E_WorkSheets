@@ -157,18 +157,27 @@ const StorageManager = {
         inMemoryAttendance[year][month] = JSON.parse(JSON.stringify(monthData));
 
         // Async Push to DB
-        const records = Object.keys(monthData).map(wid => ({
-            worker_id: wid,
-            year: year,
-            month: month,
-            data: monthData[wid]
-        }));
+        if (window.supabaseClient) {
+            const records = Object.keys(monthData).map(wid => ({
+                worker_id: wid,
+                year: year,
+                month: month,
+                data: monthData[wid]
+            }));
 
-        if (records.length > 0 && window.supabaseClient) {
             window.supabaseClient.from('attendance')
-                .upsert(records, { onConflict: 'worker_id, year, month' })
-                .then(({ error }) => {
-                    if (error) console.error('[StorageManager] saveMonthAttendance Sync Error', error);
+                .delete()
+                .eq('year', year)
+                .eq('month', month)
+                .then(({ error: delError }) => {
+                    if (delError) console.error('[StorageManager] delete old attendance Error', delError);
+                    if (records.length > 0) {
+                        window.supabaseClient.from('attendance')
+                            .insert(records)
+                            .then(({ error: insError }) => {
+                                if (insError) console.error('[StorageManager] saveMonthAttendance Insert Error', insError);
+                            });
+                    }
                 });
         }
     },

@@ -64,14 +64,46 @@ const AnnualModule = (() => {
     function renderStats(workers, matrix) {
         let grandTotal = 0;
         let workerTotals = [];
+        const monthTeamTotals = {};
+        for (let m = 1; m <= 12; m++) monthTeamTotals[m] = 0;
 
         workers.forEach(w => {
-            const t = Object.values(matrix[w.id]).reduce((s, v) => s + v, 0);
+            let t = 0;
+            for (let m = 1; m <= 12; m++) {
+                const val = matrix[w.id][m] || 0;
+                t += val;
+                monthTeamTotals[m] += val;
+            }
             grandTotal += t;
             workerTotals.push({ worker: w, total: t });
         });
 
-        // Top 3
+        // 1. Team Overview Stats
+        const overviewYearEl = $('ann-overview-year');
+        if (overviewYearEl) overviewYearEl.textContent = currentYear;
+
+        const grandTotalEl = $('ann-stat-grand-total');
+        if (grandTotalEl) grandTotalEl.textContent = fmt(grandTotal);
+
+        const activeMonths = Object.values(monthTeamTotals).filter(v => v > 0).length || 1;
+        const avgPerMonth = grandTotal > 0 ? (grandTotal / activeMonths) : 0;
+        const avgMonthEl = $('ann-stat-avg-month');
+        if (avgMonthEl) avgMonthEl.textContent = fmt(avgPerMonth);
+
+        let peakMonth = 1;
+        let maxMonthVal = 0;
+        for (let m = 1; m <= 12; m++) {
+            if (monthTeamTotals[m] > maxMonthVal) {
+                maxMonthVal = monthTeamTotals[m];
+                peakMonth = m;
+            }
+        }
+        const peakMonthEl = $('ann-stat-peak-month');
+        if (peakMonthEl) {
+            peakMonthEl.textContent = maxMonthVal > 0 ? `Tháng ${peakMonth} (${fmt(maxMonthVal)} công)` : '—';
+        }
+
+        // 2. Top 3 Attendance
         workerTotals.sort((a, b) => b.total - a.total);
         const top3 = workerTotals.slice(0, 3).filter(item => item.total > 0);
 
@@ -98,7 +130,7 @@ const AnnualModule = (() => {
             listEl.innerHTML = top3.length ? top3Html : '<div class="text-muted small py-2 text-center">Chưa có dữ liệu</div>';
         }
 
-        // Top 3 Advances
+        // 3. Top 3 Advances
         const advYearEl = $('ann-adv-year');
         if (advYearEl) advYearEl.textContent = currentYear;
 
