@@ -53,12 +53,46 @@ const AttendanceModule = (() => {
         renderSummary();
     }
 
+    /* ---- Search & Filter Helper ---- */
+    function normalizeStr(str) {
+        if (!str) return '';
+        return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
+            .replace(/Đ/g, 'D')
+            .toLowerCase()
+            .trim();
+    }
+
+    function filterWorkers(list, text = '') {
+        if (!text || !text.trim()) return list;
+        const keywords = text
+            .split(/[,;]+/)
+            .map(k => k.trim())
+            .filter(Boolean);
+        if (!keywords.length) return list;
+
+        return list.filter(w => {
+            const rawName = (w.hoTen || '').toLowerCase();
+            const normName = normalizeStr(w.hoTen);
+            const rawId = (w.id || '').toLowerCase();
+            const normId = normalizeStr(w.id);
+
+            return keywords.some(kw => {
+                const rawKw = kw.toLowerCase();
+                const normKw = normalizeStr(kw);
+                return rawName.includes(rawKw) || normName.includes(normKw) ||
+                       rawId.includes(rawKw) || normId.includes(normKw);
+            });
+        });
+    }
+
     /* ---- Render Grid ---- */
     function renderGrid(year, month, filterText = '') {
         const daysInMonth = new Date(year, month, 0).getDate();
         const thead = $('att-thead');
         const tbody = $('att-tbody');
-        const searchVal = filterText.toLowerCase().trim();
 
         /* Header row */
         let thHtml = `<th class="th-stt col-stt" rowspan="2">#</th>`;
@@ -72,10 +106,7 @@ const AttendanceModule = (() => {
         thead.innerHTML = `<tr>${thHtml}</tr>`;
 
         /* Filter workers */
-        const filteredWorkers = workers.filter(w => {
-            if (!searchVal) return true;
-            return w.hoTen.toLowerCase().includes(searchVal) || w.id.toLowerCase().includes(searchVal);
-        });
+        const filteredWorkers = filterWorkers(workers, filterText);
 
         /* Body rows */
         if (!filteredWorkers.length) {
@@ -219,11 +250,8 @@ const AttendanceModule = (() => {
 
         // 3. Chuẩn bị dữ liệu hiển thị (có filter)
         const searchInp = document.getElementById('att-search');
-        const searchVal = searchInp ? searchInp.value.toLowerCase().trim() : '';
-        const filteredWorkers = workers.filter(w => {
-            if (!searchVal) return true;
-            return w.hoTen.toLowerCase().includes(searchVal) || w.id.toLowerCase().includes(searchVal);
-        });
+        const searchVal = searchInp ? searchInp.value.trim() : '';
+        const filteredWorkers = filterWorkers(workers, searchVal);
 
         // 4. Fill Data body
         filteredWorkers.forEach((w, index) => {
@@ -307,12 +335,8 @@ const AttendanceModule = (() => {
 
         // Prepare body
         const searchInp = document.getElementById('att-search');
-        const searchVal = searchInp ? searchInp.value.toLowerCase().trim() : '';
-
-        const filteredWorkers = workers.filter(w => {
-            if (!searchVal) return true;
-            return w.hoTen.toLowerCase().includes(searchVal) || w.id.toLowerCase().includes(searchVal);
-        });
+        const searchVal = searchInp ? searchInp.value.trim() : '';
+        const filteredWorkers = filterWorkers(workers, searchVal);
 
         const body = filteredWorkers.map((w, index) => {
             const wd = monthData[w.id] || {};
