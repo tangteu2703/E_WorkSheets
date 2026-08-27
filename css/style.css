@@ -857,19 +857,19 @@ body.sidebar-collapsed #main-content {
     position: relative;
 }
 
-/* Ô trống ngày thường: Có nền xám sáng nhẹ và viền bo rõ ràng */
+/* Ô trống ngày thường: Nền xám xanh pastel mềm mại */
 .att-cell.c-empty {
-    background: #f1f5f9;
-    border-color: #e2e8f0;
+    background: #f0f4f9;
+    border-color: transparent;
     color: #94a3b8;
 }
 
-/* Ô trống ngày Chủ Nhật: Có nền vàng ấm và viền vàng cam nhẹ */
+/* Ô trống ngày Chủ Nhật: Nền vàng pastel ấm áp */
 .att-cell.c-sun,
 .att-cell.c-empty.c-sun {
     background: #fef3c7;
-    border-color: #fde68a;
-    color: #d97706;
+    border-color: transparent;
+    color: #b45309;
 }
 
 /* 1 - Cả ngày: Màu xanh ngọc lục bảo rực rỡ, chữ trắng nổi bật */
