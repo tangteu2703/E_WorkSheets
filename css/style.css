@@ -872,50 +872,47 @@ body.sidebar-collapsed #main-content {
     color: #b45309;
 }
 
-/* 1 - Cả ngày: Màu xanh ngọc lục bảo rực rỡ, chữ trắng nổi bật */
+/* 1 - Cả ngày: Màu xanh lá pastel dịu nhẹ, chữ xanh ngọc thanh lịch */
 .att-cell.c-full {
-    background: linear-gradient(135deg, #10b981, #059669) !important;
-    border-color: #047857 !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(16, 185, 129, .35);
+    background: #dcfce7 !important;
+    border-color: #bbf7d0 !important;
+    color: #15803d !important;
+    box-shadow: 0 1px 3px rgba(22, 163, 74, .12);
 }
 
-/* 0.5 - Nửa ngày: Màu tím hoàng gia rực rỡ, chữ trắng nổi bật */
+/* 0.5 - Nửa ngày: Màu tím pastel dịu nhẹ, chữ tím thanh lịch */
 .att-cell.c-half {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
-    border-color: #6d28d9 !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(124, 58, 237, .35);
+    background: #f3e8ff !important;
+    border-color: #e9d5ff !important;
+    color: #7e22ce !important;
+    box-shadow: 0 1px 3px rgba(126, 34, 206, .12);
 }
 
-/* 0 - Nghỉ: Màu đỏ san hô rực rỡ, chữ trắng nổi bật */
+/* 0 - Nghỉ: Màu đỏ hồng pastel dịu nhẹ, chữ đỏ thanh lịch */
 .att-cell.c-off {
-    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-    border-color: #b91c1c !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(239, 68, 68, .35);
+    background: #fee2e2 !important;
+    border-color: #fecaca !important;
+    color: #b91c1c !important;
+    box-shadow: 0 1px 3px rgba(185, 28, 28, .12);
 }
 
-/* Khi chấm vào ngày Chủ Nhật: Màu đậm đà hơn */
+/* Khi chấm vào ngày Chủ Nhật: Tông màu nhấn nhẹ hài hòa */
 .att-cell.c-full.c-sun {
-    background: linear-gradient(135deg, #059669, #047857) !important;
-    border-color: #065f46 !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(5, 150, 105, .4);
+    background: #bbf7d0 !important;
+    border-color: #86efac !important;
+    color: #166534 !important;
 }
 
 .att-cell.c-half.c-sun {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
-    border-color: #5b21b6 !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, .4);
+    background: #e9d5ff !important;
+    border-color: #d8b4fe !important;
+    color: #6b21a8 !important;
 }
 
 .att-cell.c-off.c-sun {
-    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
-    border-color: #991b1b !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, .4);
+    background: #fecaca !important;
+    border-color: #fca5a5 !important;
+    color: #991b1b !important;
 }
 
 /* ----------------------------------------------------------------
