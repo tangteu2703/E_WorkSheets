@@ -117,8 +117,8 @@
                 <div class="card-body py-2 px-3 px-md-4 d-flex align-items-center justify-content-between flex-wrap flex-lg-nowrap gap-3">
                     <div class="d-flex align-items-center flex-wrap flex-sm-nowrap gap-2 gap-md-3 flex-grow-1">
                         <div class="d-flex align-items-center gap-2">
-                            <label class="fw-semibold small text-muted mb-0">Tháng</label>
-                            <select id="att-month" class="form-select form-select-sm" style="width:115px">
+                            <label class="fw-semibold small text-muted mb-0"><i class="bi bi-moon-stars-fill text-warning me-1"></i>Tháng ÂL</label>
+                            <select id="att-month" class="form-select form-select-sm" style="width:130px">
                                 <option value="1">Tháng 1</option>
                                 <option value="2">Tháng 2</option>
                                 <option value="3">Tháng 3</option>
@@ -134,7 +134,7 @@
                             </select>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <label class="fw-semibold small text-muted mb-0">Năm</label>
+                            <label class="fw-semibold small text-muted mb-0">Năm ÂL</label>
                             <input id="att-year" type="number" class="form-control form-control-sm"
                                 style="width:95px" min="2020" max="2099" />
                         </div>
@@ -246,6 +246,7 @@
     <!-- App scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
+    <script src="js/lunar-calendar.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/workers.js"></script>
     <script src="js/attendance.js"></script>
