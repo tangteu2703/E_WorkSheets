@@ -3,7 +3,8 @@
  */
 const AdvancesModule = (() => {
     let advances = [];
-    let workers = [];
+    let workers = [];      // chỉ active (dùng cho dropdown thêm mới)
+    let allWorkers = [];   // tất cả (dùng để resolve tên trong bảng)
     let editingId = null;
     let searchQuery = '';
     let filterYear = new Date().getFullYear();
@@ -13,7 +14,8 @@ const AdvancesModule = (() => {
 
     function init() {
         advances = StorageManager.getAdvances();
-        workers = StorageManager.getWorkers().filter(w => w.trangThai === 'active');
+        allWorkers = StorageManager.getWorkers();                              // tất cả NV kể cả nghỉ việc
+        workers = allWorkers.filter(w => w.trangThai === 'active');            // chỉ active cho dropdown
         if ($('adv-year-filter')) $('adv-year-filter').value = filterYear;
         renderTable();
         bindEvents();
@@ -55,8 +57,17 @@ const AdvancesModule = (() => {
         }
 
         tbody.innerHTML = filtered.map((a, i) => {
-            const w = workers.find(x => x.id === a.workerId);
-            const wName = w ? w.hoTen : `<span class="text-danger">Đã xóa (${a.workerId})</span>`;
+            const w = allWorkers.find(x => x.id === a.workerId);
+            const isInactive = w && w.trangThai !== 'active';
+            const isDeleted = !w;
+            let wName;
+            if (isDeleted) {
+                wName = `<span class="text-danger">Không rõ (${a.workerId})</span>`;
+            } else if (isInactive) {
+                wName = `${w.hoTen} <span class="badge text-bg-secondary ms-1" style="font-size:.7rem;font-weight:500">Nghỉ việc</span>`;
+            } else {
+                wName = w.hoTen;
+            }
             const amountWords = a.amount > 0 ? numberToWords(a.amount) + ' đồng' : '';
 
             return `
@@ -79,8 +90,17 @@ const AdvancesModule = (() => {
 
         if (mobileList) {
             mobileList.innerHTML = filtered.map((a, i) => {
-                const w = workers.find(x => x.id === a.workerId);
-                const wName = w ? w.hoTen : `Đã xóa (${a.workerId})`;
+                const w = allWorkers.find(x => x.id === a.workerId);
+                const isInactive = w && w.trangThai !== 'active';
+                const isDeleted = !w;
+                let wName;
+                if (isDeleted) {
+                    wName = `Không rõ (${a.workerId})`;
+                } else if (isInactive) {
+                    wName = `${w.hoTen} (Nghỉ việc)`;
+                } else {
+                    wName = w.hoTen;
+                }
                 const note = a.note ? `<div class="mt-2 text-muted small fst-italic"><i class="bi bi-chat-left-text me-1"></i>${a.note}</div>` : '';
 
                 return `
