@@ -23,6 +23,7 @@ const AttendanceModule = (() => {
     let monthData = {};  // { workerId: { day: value } }
     let workers = [];
     let hasChanges = false;
+    let filterStatus = 'all'; // 'all' | 'has_work' | 'no_work'
 
     const $ = id => document.getElementById(id);
 
@@ -61,6 +62,15 @@ const AttendanceModule = (() => {
         if (searchInp) {
             searchInp.addEventListener('input', (e) => {
                 renderGrid(currentYear, currentMonth, currentIsLeap, e.target.value);
+            });
+        }
+
+        const statusFilter = $('att-status-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => {
+                filterStatus = statusFilter.value;
+                const searchVal = searchInp ? searchInp.value : '';
+                renderGrid(currentYear, currentMonth, currentIsLeap, searchVal);
             });
         }
     }
@@ -197,8 +207,22 @@ const AttendanceModule = (() => {
 
         thead.innerHTML = `<tr>${thSolarRow}</tr><tr>${thLunarRow}</tr>`;
 
-        /* Filter workers */
-        const filteredWorkers = filterWorkers(workers, filterText);
+        /* Filter workers by name/id */
+        let filteredWorkers = filterWorkers(workers, filterText);
+
+        /* Filter thêm theo trạng thái có/không có công */
+        if (filterStatus === 'has_work') {
+            filteredWorkers = filteredWorkers.filter(w => {
+                const wd = monthData[w.id] || {};
+                return Object.values(wd).some(v => v !== '' && v !== undefined && parseFloat(v) > 0);
+            });
+        } else if (filterStatus === 'no_work') {
+            filteredWorkers = filteredWorkers.filter(w => {
+                const wd = monthData[w.id] || {};
+                const total = Object.values(wd).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+                return total === 0;
+            });
+        }
 
         /* Body rows */
         if (!filteredWorkers.length) {
@@ -219,7 +243,7 @@ const AttendanceModule = (() => {
                 const lbl = cellLabel(val, isSun);
                 total += (val === '' || val === undefined) ? 0 : parseFloat(val) || 0;
 
-                const tip = `Mùng ${d} ÂL (${dayInfo.solarFormatted} DL - ${dayInfo.fullDayOfWeekStr}): ${cellTitle(val)}`;
+                const tip = `Mùng ${d} Âm Lịch (${dayInfo.solarFormatted} DL - ${dayInfo.fullDayOfWeekStr}): ${cellTitle(val)}`;
                 cells += `<td><div class="att-cell ${cls}" data-id="${w.id}" data-day="${d}" title="${tip}">${lbl}</div></td>`;
             }
 
