@@ -28,7 +28,7 @@ const AdvancesModule = (() => {
         const mobileList = $('adv-mobile-list');
 
         let filtered = advances.filter(a => {
-            const w = allWorkers.find(x => x.id === a.workerId); // dùng allWorkers để ko bỏ sót người nghỉ việc
+            const w = workers.find(x => x.id === a.workerId);
             const wName = w ? w.hoTen : 'Không rõ';
 
             const q = searchQuery.toLowerCase();
@@ -39,7 +39,6 @@ const AdvancesModule = (() => {
 
             return yearMatch && textMatch;
         });
-
 
         // Sắp xếp theo ngày ứng (mới nhất lên đầu)
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));

@@ -142,13 +142,17 @@ const AnnualModule = (() => {
             advTotals[a.workerId] = (advTotals[a.workerId] || 0) + (parseFloat(a.amount) || 0);
         });
 
-        const allWorkers = StorageManager.getWorkers(); // tất cả NV để resolve tên
-        const advList = Object.keys(advTotals).map(wId => {
-            const w = allWorkers.find(x => x.id === wId);
-            const isInactive = w && w.trangThai !== 'active';
-            const label = w ? (isInactive ? `${w.hoTen} (Nghỉ việc)` : w.hoTen) : `Không rõ (${wId})`;
-            return { worker: { hoTen: label, phongBan: w ? w.phongBan : '' }, total: advTotals[wId] };
-        });
+        const allWorkers = StorageManager.getWorkers();
+        const advList = Object.keys(advTotals)
+            .filter(wId => {
+                // Chỉ lấy NV còn đang làm việc (active)
+                const w = allWorkers.find(x => x.id === wId);
+                return w && w.trangThai === 'active';
+            })
+            .map(wId => {
+                const w = allWorkers.find(x => x.id === wId);
+                return { worker: { hoTen: w.hoTen, phongBan: w.phongBan || '' }, total: advTotals[wId] };
+            });
 
         advList.sort((a, b) => b.total - a.total);
         const top3Adv = advList.slice(0, 3).filter(item => item.total > 0);
