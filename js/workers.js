@@ -34,7 +34,7 @@ const WorkersModule = (() => {
 
         if (!filtered.length) {
             const emptyHtml = `<div class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>Không có dữ liệu</div>`;
-            tbody.innerHTML = `<tr><td colspan="8">${emptyHtml}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9">${emptyHtml}</td></tr>`;
             mobileList.innerHTML = emptyHtml;
             return;
         }
@@ -49,6 +49,12 @@ const WorkersModule = (() => {
         <td class="d-none d-md-table-cell text-muted">${w.soDienThoai || '—'}</td>
         <td class="d-none d-md-table-cell">${w.phongBan || '—'}</td>
         <td class="d-none d-lg-table-cell text-muted">${w.chucVu || '—'}</td>
+        <td class="d-none d-md-table-cell">
+          ${w.trangThai === 'active'
+            ? `<span class="badge" style="background:#dcfce7;color:#15803d;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Đang làm</span>`
+            : `<span class="badge" style="background:#fee2e2;color:#b91c1c;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Nghỉ việc</span>`
+          }
+        </td>
         <td class="d-flex text-center">
           <button class="btn-action-lux edit" onclick="WorkersModule.openEdit('${w.id}')" title="Sửa"><i class="bi bi-pencil"></i></button>
           <button class="btn-action-lux delete ms-1" onclick="WorkersModule.confirmDelete('${w.id}')" title="Xóa"><i class="bi bi-trash"></i></button>
@@ -87,6 +93,13 @@ const WorkersModule = (() => {
                 <div class="col-6 d-flex align-items-center gap-2">
                     <i class="bi bi-person-badge text-secondary"></i>
                     <span class="text-truncate">${w.chucVu || '—'}</span>
+                </div>
+                <div class="col-12 d-flex align-items-center gap-2 mt-1">
+                    <i class="bi bi-toggle-on text-secondary"></i>
+                    ${w.trangThai === 'active'
+                        ? `<span class="badge" style="background:#dcfce7;color:#15803d;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Đang làm</span>`
+                        : `<span class="badge" style="background:#fee2e2;color:#b91c1c;font-weight:600;font-size:.78rem"><i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Nghỉ việc</span>`
+                    }
                 </div>
             </div>
         </div>
