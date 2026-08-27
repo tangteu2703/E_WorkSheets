@@ -29,8 +29,10 @@ const AttendanceModule = (() => {
     function init() {
         workers = StorageManager.getWorkers().filter(w => w.trangThai === 'active');
         setupPicker();
+        setupImportButton();
         load(currentYear, currentMonth, currentIsLeap);
     }
+
 
     /* ---- Picker ---- */
     function setupPicker() {
@@ -343,14 +345,14 @@ const AttendanceModule = (() => {
         aoaData.push([title]);
         aoaData.push([]); // Dòng trống
 
-        // 2. Dòng Header 1: Dương Lịch
+        // 2. Dòng Header 1: Dương lịch
         const headerSolar = ['STT', 'Mã NV', 'Họ và tên', 'Tổng'];
         days.forEach(d => {
             headerSolar.push(d.solarFormatted + ' (DL)');
         });
         aoaData.push(headerSolar);
 
-        // 3. Dòng Header 2: Âm Lịch
+        // 3. Dòng Header 2: Âm lịch
         const headerLunar = ['', '', '', ''];
         days.forEach(d => {
             headerLunar.push(`M.${d.lunarDay}`);
@@ -545,6 +547,190 @@ const AttendanceModule = (() => {
         showToast('Đã xuất file PDF thành công!', 'success');
     }
 
+    /* ---- Import Excel ---- */
+    function importExcel(file) {
+        if (!file) return;
+        if (typeof XLSX === 'undefined') {
+            showToast('Thư viện Excel chưa tải xong, vui lòng thử lại!', 'warning');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const wb = XLSX.read(data, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+                // --- Bước 1: Đọc tiêu đề để xác định Tháng/Năm âm lịch ---
+                // Row 0: "BẢNG CHẤM CÔNG THÁNG 2/2026 (ÂM LỊCH)" hoặc "BẢNG CHẤM CÔNG THÁNG 6 Nhuận/2025 (ÂM LỊCH)"
+                const titleCell = (aoa[0] && aoa[0][0]) ? String(aoa[0][0]) : '';
+                let importMonth = null, importYear = null, importIsLeap = 0;
+
+                // Parse tiêu đề dạng: "THÁNG 2/2026" hoặc "THÁNG 6 Nhuận/2025"
+                const titleMatch = titleCell.match(/THÁNG\s+(\d+)(?:\s+Nhuận)?\/(\d{4})/i);
+                const leapMatch = titleCell.match(/THÁNG\s+(\d+)\s+Nhuận/i);
+                if (titleMatch) {
+                    importMonth = parseInt(titleMatch[1]);
+                    importYear = parseInt(titleMatch[2]);
+                    importIsLeap = leapMatch ? 1 : 0;
+                } else {
+                    // Fallback: thử đọc từ tên file (VD: Bang_Cong_T2_2026_AL.xlsx)
+                    const fnMatch = file.name.match(/T(\d+)(?:Nhuan)?_(\d{4})_AL/i);
+                    const fnLeap = file.name.match(/T\d+Nhuan_/i);
+                    if (fnMatch) {
+                        importMonth = parseInt(fnMatch[1]);
+                        importYear = parseInt(fnMatch[2]);
+                        importIsLeap = fnLeap ? 1 : 0;
+                    }
+                }
+
+                if (!importMonth || !importYear) {
+                    showToast('Ð Không đọc được tháng/năm từ file! Hãy đảm bảo dùng đúng file xuất ra từ hệ thống.', 'danger');
+                    return;
+                }
+
+                // --- Bước 2: Tìm dòng header có cột "Mã NV" ---
+                // File xuất có cấu trúc: row0=tiêu đề, row1=trống, row2=header solar, row3=header lunar, row4+=dữ liệu
+                let headerRowIdx = -1;
+                let colIdxId = -1, colIdxName = -1, colIdxTotal = -1, colIdxFirstDay = -1;
+
+                for (let ri = 0; ri < Math.min(aoa.length, 10); ri++) {
+                    const row = aoa[ri];
+                    for (let ci = 0; ci < row.length; ci++) {
+                        const cell = String(row[ci]).trim();
+                        if (cell === 'Mã NV' || cell.toLowerCase() === 'ma nv') {
+                            headerRowIdx = ri;
+                            colIdxId = ci;
+                        }
+                    }
+                    if (headerRowIdx >= 0) break;
+                }
+
+                if (headerRowIdx < 0) {
+                    showToast('Ð Không tìm thấy cột "Mã NV" trong file! Hãy dùng đúng file xuất từ hệ thống.', 'danger');
+                    return;
+                }
+
+                const headerRow = aoa[headerRowIdx];
+                // Tìm các cột dựa trên header
+                for (let ci = 0; ci < headerRow.length; ci++) {
+                    const cell = String(headerRow[ci]).trim();
+                    if (cell === 'Mã NV' || cell.toLowerCase() === 'ma nv') colIdxId = ci;
+                    else if (cell === 'Họ và tên' || cell === 'Họ và tên' || cell.toLowerCase() === 'ho va ten') colIdxName = ci;
+                    else if (cell === 'Tổng' || cell.toLowerCase() === 'tong') colIdxTotal = ci;
+                }
+
+                // Cột ngày bắt đầu sau cột Tổng
+                colIdxFirstDay = (colIdxTotal >= 0) ? colIdxTotal + 1 : colIdxId + 3;
+
+                // Dòng dữ liệu bắt đầu sau dòng header lunar (skip thêm 1 dòng nữa cho header lunar)
+                const dataStartRow = headerRowIdx + 2;
+
+                // --- Bước 3: Đọc từng dòng công nhân ---
+                const imported = {};
+                let matchCount = 0, skipCount = 0;
+
+                for (let ri = dataStartRow; ri < aoa.length; ri++) {
+                    const row = aoa[ri];
+                    if (!row || row.length === 0) continue;
+
+                    const workerId = String(row[colIdxId] || '').trim();
+                    if (!workerId) continue;
+
+                    // Kiểm tra có trong danh sách công nhân không
+                    const worker = workers.find(w => w.id === workerId);
+                    if (!worker) { skipCount++; continue; }
+
+                    const workerDays = {};
+                    for (let ci = colIdxFirstDay; ci < row.length; ci++) {
+                        const dayNum = ci - colIdxFirstDay + 1;
+                        const rawVal = row[ci];
+                        const cellStr = String(rawVal).trim();
+
+                        let val = '';
+                        if (cellStr === '1' || rawVal === 1) val = 1;
+                        else if (cellStr === '0.5' || rawVal === 0.5) val = 0.5;
+                        else if (cellStr === '-' || cellStr === '0' || rawVal === 0) val = 0;
+                        // trống thì giữ nguyên '', không ghi
+
+                        if (val !== '') {
+                            workerDays[dayNum] = val;
+                        }
+                    }
+                    imported[workerId] = workerDays;
+                    matchCount++;
+                }
+
+                if (matchCount === 0) {
+                    showToast('Ð Không tìm thấy công nhân nào khớp! Kiểm tra lại Mã NV trong file.', 'danger');
+                    return;
+                }
+
+                // --- Bước 4: Xác nhận rồi áp dụng ---
+                const leapLabel = importIsLeap ? ' Nhuận' : '';
+                const confirmMsg = `Nhập bảng công T${importMonth}${leapLabel}/${importYear} ÂL cho ${matchCount} công nhân${skipCount > 0 ? ` (bỏ qua ${skipCount} mã không tìm thấy)` : ''}?`;
+
+                showConfirm('📥', 'Nhập Excel vào Bảng Công?', confirmMsg, () => {
+                    // Đổi sang đúng tháng/năm nếu khác hiện tại
+                    if (importMonth !== currentMonth || importYear !== currentYear || importIsLeap !== currentIsLeap) {
+                        currentMonth = importMonth;
+                        currentYear = importYear;
+                        currentIsLeap = importIsLeap;
+
+                        // Cập nhật picker
+                        const yearInp = $('att-year');
+                        if (yearInp) yearInp.value = importYear;
+                        renderMonthOptions();
+                    }
+
+                    // Ghi dữ liệu vào monthData, giữ các ngày chưa có trong file nguyên vẹn
+                    Object.entries(imported).forEach(([wid, days]) => {
+                        if (!monthData[wid]) monthData[wid] = {};
+                        Object.assign(monthData[wid], days);
+                    });
+
+                    hasChanges = true;
+
+                    // Load lại đúng tháng âm để có currentMonthDetail đúng
+                    const storageMonthKey = importIsLeap ? (importMonth + 100) : importMonth;
+                    if (typeof LunarCalendar !== 'undefined') {
+                        currentMonthDetail = LunarCalendar.getLunarMonthDaysDetail(importMonth, importYear, importIsLeap);
+                    }
+
+                    renderGrid(importYear, importMonth, importIsLeap);
+                    renderSummary();
+
+                    const skipNote = skipCount > 0 ? ` (Bỏ qua ${skipCount} mã không tìm thấy)` : '';
+                    showToast(`Ð Nhập thành công ${matchCount} công nhân T${importMonth}${leapLabel}/${importYear} ÂL!${skipNote} Nhớ nhấn Lưu!`, 'success');
+                });
+
+            } catch (err) {
+                console.error('Import Excel error:', err);
+                showToast('Ð Lỗi khi đọc file Excel! Hãy đảm bảo đúng định dạng (.xlsx/.xls).', 'danger');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    /* ---- Setup Import Button ---- */
+    function setupImportButton() {
+        const btnImport = document.getElementById('att-btn-import-excel');
+        const fileInput = document.getElementById('att-import-file');
+        if (!btnImport || !fileInput) return;
+
+        btnImport.addEventListener('click', () => {
+            fileInput.value = ''; // reset để cho phép chọn lại cùng file
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) importExcel(file);
+        });
+    }
+
     /* ---- Helpers ---- */
     function cellClass(val, isSun) {
         if (val === '' || val === undefined) return isSun ? 'c-empty c-sun' : 'c-empty';
@@ -575,5 +761,5 @@ const AttendanceModule = (() => {
         return JSON.parse(JSON.stringify(obj));
     }
 
-    return { init, save, clearMonth, exportExcel, exportPdf };
+    return { init, save, clearMonth, exportExcel, exportPdf, setupImportButton };
 })();

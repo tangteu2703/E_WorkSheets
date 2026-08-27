@@ -173,6 +173,14 @@
                         <i class="bi bi-info-circle me-1"></i>
                     </span>
                     <div class="d-flex align-items-center gap-2 ms-auto flex-nowrap overflow-x-auto py-1">
+                        <!-- Nút Nhập Excel -->
+                        <button id="att-btn-import-excel"
+                            class="btn btn-sm btn-outline-info d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap"
+                            title="Nhập bảng công từ file Excel đã xuất">
+                            <i class="bi bi-file-earmark-arrow-up-fill"></i> <span class="d-none d-sm-inline">Nhập</span> Excel
+                        </button>
+                        <!-- Input ẩn để chọn file Excel -->
+                        <input type="file" id="att-import-file" accept=".xlsx,.xls" style="display:none">
                         <button id="att-btn-export-excel"
                             class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap">
                             <i class="bi bi-file-earmark-excel-fill"></i> <span class="d-none d-sm-inline">Xuất</span>
