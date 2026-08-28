@@ -432,9 +432,6 @@ const AttendanceModule = (() => {
 
     /** Cập nhật hiển thị Batch Action Bar */
     function updateBatchBar() {
-        const bar = $('batch-action-bar');
-        if (!bar) return;
-
         const wCount = selectedWorkers.size;
         const dCount = selectedDays.size;
 
@@ -443,11 +440,14 @@ const AttendanceModule = (() => {
         if (cntW) cntW.textContent = wCount;
         if (cntD) cntD.textContent = dCount;
 
-        if (wCount > 0 && dCount > 0) {
-            bar.classList.add('bar-visible');
-        } else {
-            bar.classList.remove('bar-visible');
-        }
+        // Hiện/ẩn phần selection info + nút Bỏ chọn
+        const hasSelection = wCount > 0 && dCount > 0;
+        const selInfo    = $('batch-sel-info');
+        const selDivider = $('batch-sel-divider');
+        const btnCancel  = $('batch-btn-cancel');
+        if (selInfo)    selInfo.style.display    = hasSelection ? '' : 'none';
+        if (selDivider) selDivider.style.display = hasSelection ? '' : 'none';
+        if (btnCancel)  btnCancel.style.display  = hasSelection ? '' : 'none';
     }
 
     /**
@@ -507,18 +507,27 @@ const AttendanceModule = (() => {
         updateBatchBar();
     }
 
-    /** Kết nối các nút trên Batch Action Bar */
+    /** Kết nối các nút trên Action Bar (dùng chung cho Cọ + Batch) */
     function setupBatchActionBar() {
-        const btnFull  = $('batch-btn-full');
-        const btnHalf  = $('batch-btn-half');
-        const btnOff   = $('batch-btn-off');
-        const btnClear = $('batch-btn-clear-cells');
-        const btnCancel = $('batch-btn-cancel');
+        const actionBtns = document.querySelectorAll('.brush-val-btn[data-val]');
+        const btnCancel  = $('batch-btn-cancel');
 
-        if (btnFull)   btnFull.addEventListener('click',  () => applyBatch(1));
-        if (btnHalf)   btnHalf.addEventListener('click',  () => applyBatch(0.5));
-        if (btnOff)    btnOff.addEventListener('click',   () => applyBatch(0));
-        if (btnClear)  btnClear.addEventListener('click', () => applyBatch(''));
+        actionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const rawVal = btn.dataset.val;
+                const val = rawVal === '' ? '' : parseFloat(rawVal);
+                if (brushActive) {
+                    // Chế độ Cọ: đặt brushValue + highlight nút đã chọn
+                    brushValue = val;
+                    actionBtns.forEach(b => b.classList.remove('brush-val-selected'));
+                    btn.classList.add('brush-val-selected');
+                } else {
+                    // Chế độ Batch: apply hàng loạt (chỉ hoạt động khi có chọn NV + Ngày)
+                    applyBatch(val);
+                }
+            });
+        });
+
         if (btnCancel) btnCancel.addEventListener('click', () => clearBatchSelection());
     }
 
@@ -545,31 +554,24 @@ const AttendanceModule = (() => {
 
     /** Thiết lập chế độ Cọ — kéo chuột để tô công nhanh */
     function setupBrushMode() {
-        const toggleBtn  = $('brush-toggle-btn');
-        const valueGroup = $('brush-value-group');
+        const toggleBtn = $('brush-toggle-btn');
         if (!toggleBtn) return;
 
-        // Bật / tắt chế độ cọ
         toggleBtn.addEventListener('click', () => {
             brushActive = !brushActive;
             if (brushActive) {
                 toggleBtn.classList.add('brush-active');
-                if (valueGroup) { valueGroup.style.display = 'inline-flex'; }
+                // Đồng bộ brushValue theo nút đang được highlight
+                const selBtn = document.querySelector('.brush-val-btn.brush-val-selected');
+                if (selBtn) {
+                    const raw = selBtn.dataset.val;
+                    brushValue = raw === '' ? '' : parseFloat(raw);
+                }
                 document.querySelector('.att-wrapper')?.classList.add('brush-mode');
             } else {
                 toggleBtn.classList.remove('brush-active');
-                if (valueGroup) { valueGroup.style.display = 'none'; }
                 document.querySelector('.att-wrapper')?.classList.remove('brush-mode');
             }
-        });
-
-        // Nút chọn giá trị cọ
-        document.querySelectorAll('.brush-val-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.brush-val-btn').forEach(b => b.classList.remove('brush-val-selected'));
-                btn.classList.add('brush-val-selected');
-                brushValue = parseFloat(btn.dataset.val);
-            });
         });
 
         // mouseup ở bất kỳ đâu → dừng quét
@@ -580,11 +582,10 @@ const AttendanceModule = (() => {
 
     /** Áp dụng trạng thái khóa/mở khóa lên DOM */
     function applyLockState() {
-        const wrapper = document.querySelector('.att-wrapper');
-        const btn     = $('att-btn-lock');
-        const notice  = $('att-lock-notice');
-        const batchBar  = $('batch-action-bar');
-        const brushBar  = $('brush-mode-bar');
+        const wrapper  = document.querySelector('.att-wrapper');
+        const btn      = $('att-btn-lock');
+        const notice   = $('att-lock-notice');
+        const actionBar = $('batch-action-bar');
 
         if (isLocked) {
             // Đang khóa
@@ -596,15 +597,13 @@ const AttendanceModule = (() => {
                 btn.innerHTML = '<i class="bi bi-lock-fill"></i> <span class="d-none d-sm-inline">Mở Khóa</span>';
             }
             if (notice) notice.classList.add('notice-visible');
-            // Ẩn batch bar và brush bar khi khóa
-            if (batchBar) batchBar.classList.remove('bar-visible');
-            if (brushBar) brushBar.style.display = 'none';
+            // Ẩn action bar khi khóa
+            if (actionBar) actionBar.classList.remove('bar-visible');
             // Tắt chế độ cọ nếu đang bật
             if (brushActive) {
                 brushActive = false; isBrushing = false;
-                const tb = $('brush-toggle-btn'); const vg = $('brush-value-group');
+                const tb = $('brush-toggle-btn');
                 if (tb) tb.classList.remove('brush-active');
-                if (vg) vg.style.display = 'none';
                 document.querySelector('.att-wrapper')?.classList.remove('brush-mode');
             }
         } else {
@@ -617,8 +616,8 @@ const AttendanceModule = (() => {
                 btn.innerHTML = '<i class="bi bi-unlock-fill"></i> <span class="d-none d-sm-inline">Khóa lại</span>';
             }
             if (notice) notice.classList.remove('notice-visible');
-            // Hiện brush bar và cập nhật batch bar
-            if (brushBar) brushBar.style.display = '';
+            // Hiện action bar khi mở khóa
+            if (actionBar) actionBar.classList.add('bar-visible');
             updateBatchBar();
         }
     }

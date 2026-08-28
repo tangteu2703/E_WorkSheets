@@ -177,59 +177,44 @@
             </div>
 
 
-            <!-- 🖌️ BRUSH MODE BAR — Chế độ cọ quét ô nhanh -->
-            <div id="brush-mode-bar" class="mb-2" style="display:none">
+            <!-- ✨ ACTION BAR — Cọ + Nhập nhanh (thanh dùng chung, ẩn khi khóa) -->
+            <div id="batch-action-bar" class="mb-3">
+                <!-- 🖌️ Nút Cọ toggle -->
                 <button class="batch-btn brush-toggle-btn" id="brush-toggle-btn"
                     title="Bật/tắt chế độ Cọ — kéo chuột qua ô để tô công nhanh">
                     <i class="bi bi-brush-fill"></i> Cọ
                 </button>
-                <span id="brush-value-group" style="display:none;align-items:center;gap:6px">
-                    <span class="batch-divider" style="height:20px"></span>
-                    <button class="batch-btn batch-btn-full brush-val-btn brush-val-selected" id="brush-val-1"
-                        data-val="1" title="Tô 1 công cả ngày">
-                        <i class="bi bi-check-circle-fill"></i> 1 – Cả ngày
-                    </button>
-                    <button class="batch-btn batch-btn-half brush-val-btn" id="brush-val-half"
-                        data-val="0.5" title="Tô 0.5 công nửa ngày">
-                        <i class="bi bi-circle-half"></i> 0.5 – Nửa ngày
-                    </button>
-                    <button class="batch-btn batch-btn-off brush-val-btn" id="brush-val-off"
-                        data-val="0" title="Tô Nghỉ">
-                        <i class="bi bi-dash-circle-fill"></i> Nghỉ
-                    </button>
-                    <span class="batch-divider" style="height:20px"></span>
-                    <span style="font-size:.72rem;color:#94a3b8;font-weight:600;white-space:nowrap">
-                        <i class="bi bi-hand-index-thumb-fill" style="color:#fbbf24"></i> Kéo chuột qua ô để tô
-                    </span>
-                </span>
-            </div>
-
-            <!-- ✨ BATCH ACTION BAR — Thanh nhập nhanh hàng loạt -->
-            <div id="batch-action-bar" class="mb-3">
-                <span class="batch-info">
-                    <i class="bi bi-lightning-charge-fill" style="color:#fbbf24"></i>
-                    Nhập nhanh:
-                    <strong id="batch-count-workers">0</strong> công nhân ×
-                    <strong id="batch-count-days">0</strong> ngày
-                </span>
                 <div class="batch-divider"></div>
-                <button class="batch-btn batch-btn-full" id="batch-btn-full" title="Đánh 1 công (cả ngày) cho các ô đã chọn">
+                <!-- Nút dùng chung: [Cọ ON] chọn giá trị tô | [Cọ OFF + đã chọn NV+Ngày] apply batch -->
+                <button class="batch-btn batch-btn-full brush-val-btn brush-val-selected" id="batch-btn-full"
+                    data-val="1" title="[Cọ] Tô 1 công cả ngày  |  [Chọn NV+Ngày] Đánh 1 công hàng loạt">
                     <i class="bi bi-check-circle-fill"></i> 1 – Cả ngày
                 </button>
-                <button class="batch-btn batch-btn-half" id="batch-btn-half" title="Đánh 0.5 công (nửa ngày) cho các ô đã chọn">
+                <button class="batch-btn batch-btn-half brush-val-btn" id="batch-btn-half"
+                    data-val="0.5" title="[Cọ] Tô 0.5 công  |  [Chọn NV+Ngày] Đánh 0.5 hàng loạt">
                     <i class="bi bi-circle-half"></i> 0.5 – Nửa ngày
                 </button>
-                <button class="batch-btn batch-btn-off" id="batch-btn-off" title="Đánh Nghỉ (0 công) cho các ô đã chọn">
+                <button class="batch-btn batch-btn-off brush-val-btn" id="batch-btn-off"
+                    data-val="0" title="[Cọ] Tô Nghỉ  |  [Chọn NV+Ngày] Đánh Nghỉ hàng loạt">
                     <i class="bi bi-dash-circle-fill"></i> Nghỉ
                 </button>
-                <button class="batch-btn batch-btn-clear" id="batch-btn-clear-cells" title="Xóa trắng (chưa chấm) các ô đã chọn">
+                <button class="batch-btn batch-btn-clear brush-val-btn" id="batch-btn-clear-cells"
+                    data-val="" title="[Cọ] Tô trắng (xóa)  |  [Chọn NV+Ngày] Xóa ô hàng loạt">
                     <i class="bi bi-eraser-fill"></i> Xóa ô
                 </button>
-                <div class="batch-divider"></div>
-                <button class="batch-btn batch-btn-cancel" id="batch-btn-cancel" title="Bỏ chọn tất cả">
+                <!-- Phần Batch info + Bỏ chọn — chỉ hiện khi có chọn NV + Ngày -->
+                <div class="batch-divider" id="batch-sel-divider" style="display:none"></div>
+                <span class="batch-info" id="batch-sel-info" style="display:none">
+                    <i class="bi bi-lightning-charge-fill" style="color:#fbbf24"></i>
+                    <strong id="batch-count-workers">0</strong> NV ×
+                    <strong id="batch-count-days">0</strong> ngày
+                </span>
+                <button class="batch-btn batch-btn-cancel" id="batch-btn-cancel"
+                    style="display:none" title="Bỏ chọn tất cả">
                     <i class="bi bi-x-circle"></i> Bỏ chọn
                 </button>
             </div>
+
 
             <!-- Attendance grid card -->
             <div class="card border-0 shadow-sm" data-aos="fade-up" data-aos-delay="60">
