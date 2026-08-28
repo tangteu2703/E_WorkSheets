@@ -24,8 +24,10 @@ const AdvancesModule = (() => {
 
     /* ---- Render ---- */
     function renderTable() {
-        const tbody = $('adv-tbody');
-        const mobileList = $('adv-mobile-list');
+        const tbodyOwner  = $('adv-tbody-owner');
+        const tbodyWorker = $('adv-tbody-worker');
+        const mobileOwner  = $('adv-mobile-owner');
+        const mobileWorker = $('adv-mobile-worker');
 
         let filtered = advances.filter(a => {
             const w = allWorkers.find(x => x.id === a.workerId);
@@ -43,102 +45,92 @@ const AdvancesModule = (() => {
         // Sắp xếp theo ngày ứng (mới nhất lên đầu)
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Tính tổng tiền tách biệt Chủ nhà / Công nhân
-        let totalOwner = 0, totalWorker = 0;
-        filtered.forEach(a => {
-            const w = allWorkers.find(x => x.id === a.workerId);
-            if (w && w.trangThai === 'owner') {
-                totalOwner += (a.amount || 0);
-            } else {
-                totalWorker += (a.amount || 0);
-            }
-        });
-        if ($('adv-total-owner'))  $('adv-total-owner').textContent  = formatCurrency(totalOwner)  + ' VNĐ';
-        if ($('adv-total-worker')) $('adv-total-worker').textContent = formatCurrency(totalWorker) + ' VNĐ';
+        // Tách 2 nhóm
+        const ownerList  = filtered.filter(a => { const w = allWorkers.find(x => x.id === a.workerId); return w && w.trangThai === 'owner'; });
+        const workerList = filtered.filter(a => { const w = allWorkers.find(x => x.id === a.workerId); return !(allWorkers.find(x => x.id === a.workerId) && allWorkers.find(x => x.id === a.workerId).trangThai === 'owner'); });
+
+        // Tính tổng tiền
+        const totalOwner  = ownerList.reduce((s, a)  => s + (a.amount || 0), 0);
+        const totalWorker = workerList.reduce((s, a) => s + (a.amount || 0), 0);
+
+        if ($('adv-total-owner'))       $('adv-total-owner').textContent       = formatCurrency(totalOwner)  + ' VNĐ';
+        if ($('adv-total-worker'))      $('adv-total-worker').textContent      = formatCurrency(totalWorker) + ' VNĐ';
+        if ($('adv-card-total-owner'))  $('adv-card-total-owner').textContent  = formatCurrency(totalOwner)  + ' VNĐ';
+        if ($('adv-card-total-worker')) $('adv-card-total-worker').textContent = formatCurrency(totalWorker) + ' VNĐ';
+        if ($('adv-count-owner'))       $('adv-count-owner').textContent       = ownerList.length  + ' phiếu';
+        if ($('adv-count-worker'))      $('adv-count-worker').textContent      = workerList.length + ' phiếu';
         // Fallback cho layout cũ nếu vẫn còn element
         if ($('adv-total-amount')) $('adv-total-amount').textContent = formatCurrency(totalOwner + totalWorker) + ' VNĐ';
 
-        if (!filtered.length) {
-            const emptyHtml = `<div class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>Không có phiếu ứng nào trong năm ${filterYear}</div>`;
-            tbody.innerHTML = `<tr><td colspan="7">${emptyHtml}</td></tr>`;
-            if (mobileList) mobileList.innerHTML = emptyHtml;
-            return;
-        }
-
-        tbody.innerHTML = filtered.map((a, i) => {
+        // ---- Helper render rows ----
+        function buildRow(a, i, isOwner) {
             const w = allWorkers.find(x => x.id === a.workerId);
-            const isOwner   = w && w.trangThai === 'owner';
             const isInactive = w && w.trangThai === 'inactive';
             const isDeleted  = !w;
             let wName;
-            if (isDeleted) {
-                wName = `<span class="text-danger">Không rõ (${a.workerId})</span>`;
-            } else if (isOwner) {
-                wName = `${w.hoTen} <span class="badge ms-1" style="background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:600"><i class="bi bi-house-fill me-1" style="font-size:.6rem"></i>Chủ nhà</span>`;
-            } else if (isInactive) {
-                wName = `${w.hoTen} <span class="badge text-bg-secondary ms-1" style="font-size:.7rem;font-weight:500">Nghỉ việc</span>`;
-            } else {
-                wName = w.hoTen;
-            }
-            const amountWords = a.amount > 0 ? numberToWords(a.amount) + ' đồng' : '';
+            if (isDeleted)      wName = `<span class="text-danger">Không rõ (${a.workerId})</span>`;
+            else if (isInactive) wName = `${w.hoTen} <span class="badge text-bg-secondary ms-1" style="font-size:.7rem">Nghỉ việc</span>`;
+            else                 wName = w.hoTen;
 
-            return `
-            <tr>
-                <td class="text-center text-muted" style="font-size:.8rem">${i + 1}</td>
+            const amountColor = isOwner ? '#92400e' : '#b91c1c';
+
+            return `<tr>
+                <td class="text-center text-muted" style="font-size:.78rem">${i + 1}</td>
                 <td>
-                    <span class="worker-id-badge" style="background:var(--primary-light);color:var(--primary-dark)">${a.workerId}</span>
-                    <span class="fw-semibold ms-2" style="font-size:.9rem">${wName}</span>
+                    <span class="worker-id-badge" style="background:var(--primary-light);color:var(--primary-dark);font-size:.72rem">${a.workerId}</span>
+                    <span class="fw-semibold ms-1" style="font-size:.87rem">${wName}</span>
                 </td>
-                <td class="text-muted">${formatDate(a.date)}</td>
-                <td class="text-end fw-bold" style="color:#b45309;font-size:1.05rem">${formatCurrency(a.amount)}</td>
-                <td class="text-muted fst-italic" style="font-size:.85rem;">${amountWords}</td>
-                <td class="text-muted" style="font-size:.85rem;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${a.note || ''}">${a.note || '—'}</td>
-                <td class="d-flex text-end">
+                <td class="text-muted" style="font-size:.84rem">${formatDate(a.date)}</td>
+                <td class="text-end fw-bold" style="color:${amountColor};font-size:1rem">${formatCurrency(a.amount)}</td>
+                <td class="text-muted" style="font-size:.82rem;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${a.note || ''}">${a.note || '—'}</td>
+                <td class="d-flex text-end gap-1">
                     <button class="btn-action-lux edit" onclick="AdvancesModule.openEdit('${a.id}')" title="Sửa"><i class="bi bi-pencil"></i></button>
-                    <button class="btn-action-lux delete ms-1" onclick="AdvancesModule.confirmDelete('${a.id}')" title="Xóa"><i class="bi bi-trash"></i></button>
+                    <button class="btn-action-lux delete" onclick="AdvancesModule.confirmDelete('${a.id}')" title="Xóa"><i class="bi bi-trash"></i></button>
                 </td>
             </tr>`;
-        }).join('');
-
-        if (mobileList) {
-            mobileList.innerHTML = filtered.map((a, i) => {
-                const w = allWorkers.find(x => x.id === a.workerId);
-                const isOwner    = w && w.trangThai === 'owner';
-                const isInactive = w && w.trangThai === 'inactive';
-                const isDeleted  = !w;
-                let wName;
-                if (isDeleted) {
-                    wName = `Không rõ (${a.workerId})`;
-                } else if (isOwner) {
-                    wName = `${w.hoTen} (Chủ nhà)`;
-                } else if (isInactive) {
-                    wName = `${w.hoTen} (Nghỉ việc)`;
-                } else {
-                    wName = w.hoTen;
-                }
-                const note = a.note ? `<div class="mt-2 text-muted small fst-italic"><i class="bi bi-chat-left-text me-1"></i>${a.note}</div>` : '';
-
-                return `
-                <div class="card mb-2 shadow-sm border-0 rounded-3">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <span class="badge bg-light text-success border border-success-subtle mb-1">${formatDate(a.date)}</span>
-                                <h6 class="mb-0 fw-bold text-dark">${wName} <span class="text-muted fw-normal" style="font-size:0.75rem">#${a.workerId}</span></h6>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-light text-primary py-0 px-2 border" onclick="AdvancesModule.openEdit('${a.id}')"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-light text-danger py-0 px-2 border" onclick="AdvancesModule.confirmDelete('${a.id}')"><i class="bi bi-trash"></i></button>
-                            </div>
-                        </div>
-                        <div class="mt-2 bg-light p-2 rounded text-end border">
-                            <div class="fw-bold" style="color:#b45309;font-size:1.1rem">${formatCurrency(a.amount)} đ</div>
-                        </div>
-                        ${note}
-                    </div>
-                </div>`;
-            }).join('');
         }
+
+        function buildMobileCard(a, isOwner) {
+            const w = allWorkers.find(x => x.id === a.workerId);
+            const isInactive = w && w.trangThai === 'inactive';
+            const isDeleted  = !w;
+            let wName;
+            if (isDeleted)       wName = `Không rõ (${a.workerId})`;
+            else if (isInactive) wName = `${w.hoTen} (Nghỉ việc)`;
+            else                 wName = w.hoTen;
+            const note = a.note ? `<div class="mt-2 text-muted small fst-italic"><i class="bi bi-chat-left-text me-1"></i>${a.note}</div>` : '';
+            const amountColor = isOwner ? '#92400e' : '#b91c1c';
+            return `<div class="card mb-2 shadow-sm border-0 rounded-3">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="badge bg-light text-success border border-success-subtle mb-1">${formatDate(a.date)}</span>
+                            <h6 class="mb-0 fw-bold text-dark">${wName} <span class="text-muted fw-normal" style="font-size:0.75rem">#${a.workerId}</span></h6>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-light text-primary py-0 px-2 border" onclick="AdvancesModule.openEdit('${a.id}')"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-light text-danger py-0 px-2 border" onclick="AdvancesModule.confirmDelete('${a.id}')"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="mt-2 bg-light p-2 rounded text-end border">
+                        <div class="fw-bold" style="color:${amountColor};font-size:1.1rem">${formatCurrency(a.amount)} đ</div>
+                    </div>
+                    ${note}
+                </div>
+            </div>`;
+        }
+
+        const emptyOwner  = `<tr><td colspan="6"><div class="text-center text-muted py-4"><i class="bi bi-inbox d-block mb-1 opacity-50" style="font-size:1.5rem"></i>Chưa có phiếu ứng Chủ nhà năm ${filterYear}</div></td></tr>`;
+        const emptyWorker = `<tr><td colspan="6"><div class="text-center text-muted py-4"><i class="bi bi-inbox d-block mb-1 opacity-50" style="font-size:1.5rem"></i>Chưa có phiếu ứng Công nhân năm ${filterYear}</div></td></tr>`;
+
+        if (tbodyOwner)  tbodyOwner.innerHTML  = ownerList.length  ? ownerList.map((a,i)  => buildRow(a, i, true)).join('')  : emptyOwner;
+        if (tbodyWorker) tbodyWorker.innerHTML = workerList.length ? workerList.map((a,i) => buildRow(a, i, false)).join('') : emptyWorker;
+
+        const emptyOwnerM  = `<div class="text-center text-muted py-4">Chưa có phiếu ứng Chủ nhà năm ${filterYear}</div>`;
+        const emptyWorkerM = `<div class="text-center text-muted py-4">Chưa có phiếu ứng Công nhân năm ${filterYear}</div>`;
+
+        if (mobileOwner)  mobileOwner.innerHTML  = ownerList.length  ? ownerList.map(a  => buildMobileCard(a, true)).join('')  : emptyOwnerM;
+        if (mobileWorker) mobileWorker.innerHTML = workerList.length ? workerList.map(a => buildMobileCard(a, false)).join('') : emptyWorkerM;
     }
 
     function populateWorkerSelect() {

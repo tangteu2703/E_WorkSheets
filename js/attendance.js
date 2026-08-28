@@ -25,13 +25,30 @@ const AttendanceModule = (() => {
     let hasChanges = false;
     let filterStatus = 'all'; // 'all' | 'has_work' | 'no_work'
 
+    // --- Batch Selection State ---
+    let selectedWorkers = new Set(); // Set of worker IDs
+    let selectedDays    = new Set(); // Set of day numbers (1-based)
+
+    // --- Brush Mode State ---
+    let brushActive = false;  // Chế độ cọ đang bật?
+    let brushValue  = 1;      // Giá trị tô: 1 | 0.5 | 0
+    let isBrushing  = false;  // Đang kéo chuột?
+
+    // --- Lock State ---
+    let isLocked = true; // Mặc định load trang là đang khóa, tránh click nhầm
+
     const $ = id => document.getElementById(id);
 
     function init() {
         workers = StorageManager.getWorkers().filter(w => w.trangThai === 'active');
         setupPicker();
         setupImportButton();
+        setupBatchActionBar();
+        setupBrushMode();
+        setupLockButton();
         load(currentYear, currentMonth, currentIsLeap);
+        // Áp dụng trạng thái khóa ngay sau khi render xong
+        applyLockState();
     }
 
 
@@ -101,6 +118,7 @@ const AttendanceModule = (() => {
     /* ---- Load ---- */
     function load(year, month, isLeap = 0) {
         hasChanges = false;
+        clearBatchSelection(); // Reset lựa chọn hàng loạt khi đổi tháng
         // Key lưu trữ tháng (nếu tháng nhuận dùng key riêng)
         const storageMonthKey = isLeap ? (month + 100) : month;
         monthData = deepClone(StorageManager.getMonthAttendance(year, storageMonthKey));
@@ -190,6 +208,9 @@ const AttendanceModule = (() => {
             const solarBg = isSun ? 'background:#fef3c7;color:#92400e;' : 'background:#f8fafc;color:#64748b;';
             const lunarBg = isSun ? 'background:#fee2e2;color:#991b1b;' : 'background:#f1f5f9;color:#0f172a;';
 
+            // Kiểm tra ngày đang được chọn để áp dụng style
+            const daySelected = selectedDays.has(d.lunarDay) ? 'th-day-selected' : '';
+
             // Hàng 1: Dương lịch
             thSolarRow += `<th title="${d.fullDayOfWeekStr}, ngày ${d.solarFullFormatted} (Dương lịch)"
                                class="${sunClass}" 
@@ -197,9 +218,10 @@ const AttendanceModule = (() => {
                                ${d.solarFormatted}
                            </th>`;
 
-            // Hàng 2: Âm lịch
-            thLunarRow += `<th title="Mùng ${d.lunarDay} Tháng ${month}${isLeap ? ' Nhuận' : ''} Âm lịch (${d.fullDayOfWeekStr}, ${d.solarFullFormatted} Dương)"
-                              class="${sunClass}" 
+            // Hàng 2: Âm lịch — thêm class th-day-sel và data-day để click chọn
+            thLunarRow += `<th title="Mùng ${d.lunarDay} Tháng ${month}${isLeap ? ' Nhuận' : ''} Âm lịch (${d.fullDayOfWeekStr}, ${d.solarFullFormatted} Dương) — Click để chọn ngày"
+                              class="th-day-sel ${sunClass} ${daySelected}" 
+                              data-day="${d.lunarDay}"
                               style="${lunarBg} font-size:.78rem; padding:4px 2px; font-weight:800;">
                               ${d.lunarDay}
                           </th>`;
@@ -235,6 +257,9 @@ const AttendanceModule = (() => {
             let total = 0;
             let cells = '';
 
+            const isWorkerSel = selectedWorkers.has(w.id);
+            const workerRowCls = isWorkerSel ? 'tr-worker-selected' : '';
+
             for (let d = 1; d <= daysInMonth; d++) {
                 const dayInfo = days[d - 1];
                 const isSun = dayInfo.isSunday;
@@ -244,13 +269,25 @@ const AttendanceModule = (() => {
                 total += (val === '' || val === undefined) ? 0 : parseFloat(val) || 0;
 
                 const tip = `Mùng ${d} Âm Lịch (${dayInfo.solarFormatted} DL - ${dayInfo.fullDayOfWeekStr}): ${cellTitle(val)}`;
-                cells += `<td><div class="att-cell ${cls}" data-id="${w.id}" data-day="${d}" title="${tip}">${lbl}</div></td>`;
+                const daySelCls = selectedDays.has(d) ? 'td-day-selected' : '';
+                cells += `<td class="${daySelCls}" data-col="${d}"><div class="att-cell ${cls}" data-id="${w.id}" data-day="${d}" title="${tip}">${lbl}</div></td>`;
             }
 
-            return `<tr>
+            // Hiển thị icon check nếu công nhân đang được chọn
+            const checkIcon = isWorkerSel
+                ? `<i class="bi bi-check-circle-fill" style="color:#f59e0b;font-size:.7rem"></i>`
+                : `<i class="bi bi-circle" style="color:#cbd5e1;font-size:.7rem"></i>`;
+
+            const badgeBg = isWorkerSel ? '' : 'bg-light text-primary border';
+
+            return `<tr class="${workerRowCls}">
                 <td class="stt-cell text-muted text-center align-middle" style="font-size:.8rem">${index + 1}</td>
                 <td class="code-cell text-center align-middle">
-                    <span class="badge bg-light text-primary fw-bold border" style="font-size:.74rem">${w.id}</span>
+                    <span class="worker-badge-sel ${isWorkerSel ? 'sel-active' : 'badge bg-light text-primary border'}" 
+                          data-worker-id="${w.id}" 
+                          title="Click để chọn/bỏ chọn ${w.hoTen} cho nhập nhanh">
+                        ${checkIcon} ${w.id}
+                    </span>
                 </td>
                 <td class="name-cell align-middle">
                     <div class="fw-semibold text-dark">${w.hoTen}</div>
@@ -260,8 +297,19 @@ const AttendanceModule = (() => {
             </tr>`;
         }).join('');
 
-        /* Delegate click */
+        /* Delegate click — ô chấm công */
         tbody.onclick = e => {
+            if (brushActive) return; // Chế độ cọ: mousedown/mouseover xử lý, bỏ qua click cycle
+
+            // Click vào worker badge để toggle chọn
+            const badge = e.target.closest('.worker-badge-sel');
+            if (badge) {
+                const wid = badge.dataset.workerId;
+                if (wid) toggleWorkerSelection(wid);
+                return;
+            }
+
+            // Click vào ô chấm công (single cell)
             const cell = e.target.closest('.att-cell');
             if (!cell) return;
 
@@ -270,9 +318,329 @@ const AttendanceModule = (() => {
 
             toggleCell(cell);
         };
+
+        /* Brush mode — mousedown bắt đầu tô, mouseover tiếp tục kéo */
+        tbody.onmousedown = e => {
+            if (!brushActive || isLocked) return;
+            const cell = e.target.closest('.att-cell');
+            if (!cell) return;
+            isBrushing = true;
+            paintCell(cell);
+            e.preventDefault(); // Ngăn bôi đen text khi kéo
+        };
+        tbody.onmouseover = e => {
+            if (!brushActive || !isBrushing || isLocked) return;
+            const cell = e.target.closest('.att-cell');
+            if (!cell) return;
+            paintCell(cell);
+        };
+
+        /* Delegate click — header ngày âm lịch để chọn ngày */
+        thead.onclick = e => {
+            const th = e.target.closest('th.th-day-sel');
+            if (!th) return;
+            const day = parseInt(th.dataset.day);
+            if (!day) return;
+            toggleDaySelection(day);
+        };
+
+        // Áp dụng trạng thái chọn hiện tại lên DOM (nếu render lại sau batch)
+        syncSelectionToDOM();
+    }
+
+    /* ============================================================
+       BATCH SELECTION — Chọn nhiều công nhân & ngày để nhập nhanh
+       ============================================================ */
+
+    /** Toggle chọn/bỏ chọn một công nhân */
+    function toggleWorkerSelection(workerId) {
+        if (selectedWorkers.has(workerId)) {
+            selectedWorkers.delete(workerId);
+        } else {
+            selectedWorkers.add(workerId);
+        }
+        syncSelectionToDOM();
+        updateBatchBar();
+    }
+
+    /** Toggle chọn/bỏ chọn một ngày */
+    function toggleDaySelection(day) {
+        if (selectedDays.has(day)) {
+            selectedDays.delete(day);
+        } else {
+            selectedDays.add(day);
+        }
+        syncSelectionToDOM();
+        updateBatchBar();
+    }
+
+    /**
+     * Đồng bộ trạng thái selection lên DOM mà không re-render toàn bộ bảng.
+     * - Worker badge: thêm/bỏ class sel-active, cập nhật icon
+     * - Row: thêm/bỏ class tr-worker-selected
+     * - Header ngày: thêm/bỏ class th-day-selected
+     * - Cột ngày: thêm/bỏ class td-day-selected
+     */
+    function syncSelectionToDOM() {
+        // Sync worker badges & rows
+        document.querySelectorAll('.worker-badge-sel[data-worker-id]').forEach(badge => {
+            const wid = badge.dataset.workerId;
+            const row = badge.closest('tr');
+            if (selectedWorkers.has(wid)) {
+                badge.classList.add('sel-active');
+                badge.classList.remove('badge', 'bg-light', 'text-primary', 'border');
+                const iconEl = badge.querySelector('i');
+                if (iconEl) {
+                    iconEl.className = 'bi bi-check-circle-fill';
+                    iconEl.style.color = '#f59e0b';
+                    iconEl.style.fontSize = '.7rem';
+                }
+                if (row) row.classList.add('tr-worker-selected');
+            } else {
+                badge.classList.remove('sel-active');
+                badge.classList.add('badge', 'bg-light', 'text-primary', 'border');
+                const iconEl = badge.querySelector('i');
+                if (iconEl) {
+                    iconEl.className = 'bi bi-circle';
+                    iconEl.style.color = '#cbd5e1';
+                    iconEl.style.fontSize = '.7rem';
+                }
+                if (row) row.classList.remove('tr-worker-selected');
+            }
+        });
+
+        // Sync header ngày — row 2 của thead
+        document.querySelectorAll('th.th-day-sel[data-day]').forEach(th => {
+            const day = parseInt(th.dataset.day);
+            if (selectedDays.has(day)) {
+                th.classList.add('th-day-selected');
+            } else {
+                th.classList.remove('th-day-selected');
+            }
+        });
+
+        // Sync cột ngày trong tbody
+        document.querySelectorAll('#att-tbody td[data-col]').forEach(td => {
+            const col = parseInt(td.dataset.col);
+            if (selectedDays.has(col)) {
+                td.classList.add('td-day-selected');
+            } else {
+                td.classList.remove('td-day-selected');
+            }
+        });
+    }
+
+    /** Cập nhật hiển thị Batch Action Bar */
+    function updateBatchBar() {
+        const bar = $('batch-action-bar');
+        if (!bar) return;
+
+        const wCount = selectedWorkers.size;
+        const dCount = selectedDays.size;
+
+        const cntW = $('batch-count-workers');
+        const cntD = $('batch-count-days');
+        if (cntW) cntW.textContent = wCount;
+        if (cntD) cntD.textContent = dCount;
+
+        if (wCount > 0 && dCount > 0) {
+            bar.classList.add('bar-visible');
+        } else {
+            bar.classList.remove('bar-visible');
+        }
+    }
+
+    /**
+     * Áp dụng công hàng loạt cho các worker x ngày đã chọn.
+     * @param {number|''} value — 1, 0.5, 0, hoặc '' (xóa)
+     */
+    function applyBatch(value) {
+        if (isLocked) { showToast('🔒 Bảng đang khóa! Nhấn nút <strong>Mở Khóa</strong> trước.', 'warning'); return; }
+        if (selectedWorkers.size === 0 || selectedDays.size === 0) return;
+
+        const daysInMonth = currentMonthDetail ? currentMonthDetail.totalDays : 30;
+
+        selectedWorkers.forEach(wid => {
+            if (!monthData[wid]) monthData[wid] = {};
+            selectedDays.forEach(day => {
+                if (day < 1 || day > daysInMonth) return;
+                if (value === '') {
+                    delete monthData[wid][day];
+                } else {
+                    monthData[wid][day] = value;
+                }
+            });
+            updateWorkerTotal(wid);
+        });
+
+        hasChanges = true;
+
+        // Cập nhật lại các ô trong DOM (không re-render toàn bộ)
+        const days = currentMonthDetail ? currentMonthDetail.days : [];
+        selectedWorkers.forEach(wid => {
+            selectedDays.forEach(day => {
+                const cell = document.querySelector(`.att-cell[data-id="${wid}"][data-day="${day}"]`);
+                if (!cell) return;
+                const dayInfo = days[day - 1] || { isSunday: false, solarFormatted: '', fullDayOfWeekStr: '' };
+                const isSun = dayInfo.isSunday;
+                const cur = (value === '') ? '' : value;
+                cell.className = `att-cell ${cellClass(cur, isSun)}`;
+                cell.title = `Mùng ${day} ÂL (${dayInfo.solarFormatted} DL - ${dayInfo.fullDayOfWeekStr}): ${cellTitle(cur)}`;
+                cell.innerHTML = cellLabel(cur, isSun);
+            });
+        });
+
+        renderSummary();
+
+        const valLabel = value === 1 ? '1 ngày công' : value === 0.5 ? '0.5 ngày' : value === 0 ? 'Nghỉ' : 'Xóa trống';
+        showToast(
+            `✅ Đã nhập <strong>${valLabel}</strong> cho ${selectedWorkers.size} công nhân × ${selectedDays.size} ngày`,
+            'success'
+        );
+    }
+
+    /** Xóa toàn bộ lựa chọn */
+    function clearBatchSelection() {
+        selectedWorkers.clear();
+        selectedDays.clear();
+        syncSelectionToDOM();
+        updateBatchBar();
+    }
+
+    /** Kết nối các nút trên Batch Action Bar */
+    function setupBatchActionBar() {
+        const btnFull  = $('batch-btn-full');
+        const btnHalf  = $('batch-btn-half');
+        const btnOff   = $('batch-btn-off');
+        const btnClear = $('batch-btn-clear-cells');
+        const btnCancel = $('batch-btn-cancel');
+
+        if (btnFull)   btnFull.addEventListener('click',  () => applyBatch(1));
+        if (btnHalf)   btnHalf.addEventListener('click',  () => applyBatch(0.5));
+        if (btnOff)    btnOff.addEventListener('click',   () => applyBatch(0));
+        if (btnClear)  btnClear.addEventListener('click', () => applyBatch(''));
+        if (btnCancel) btnCancel.addEventListener('click', () => clearBatchSelection());
+    }
+
+    /** Tô một ô theo brushValue (dùng trong chế độ cọ) */
+    function paintCell(cell) {
+        const workerId = cell.dataset.id;
+        const day = parseInt(cell.dataset.day);
+        if (!workerId || !day) return;
+        if (!monthData[workerId]) monthData[workerId] = {};
+        if (monthData[workerId][day] === brushValue) return; // Không tô lại nếu cùng giá trị
+
+        monthData[workerId][day] = brushValue;
+        hasChanges = true;
+
+        const dayInfo = currentMonthDetail
+            ? currentMonthDetail.days[day - 1]
+            : { isSunday: false, solarFormatted: '', fullDayOfWeekStr: '' };
+        const isSun = dayInfo.isSunday;
+        cell.className = `att-cell ${cellClass(brushValue, isSun)}`;
+        cell.title = `Mùng ${day} ÂL (${dayInfo.solarFormatted} DL - ${dayInfo.fullDayOfWeekStr}): ${cellTitle(brushValue)}`;
+        cell.innerHTML = cellLabel(brushValue, isSun);
+        updateWorkerTotal(workerId);
+    }
+
+    /** Thiết lập chế độ Cọ — kéo chuột để tô công nhanh */
+    function setupBrushMode() {
+        const toggleBtn  = $('brush-toggle-btn');
+        const valueGroup = $('brush-value-group');
+        if (!toggleBtn) return;
+
+        // Bật / tắt chế độ cọ
+        toggleBtn.addEventListener('click', () => {
+            brushActive = !brushActive;
+            if (brushActive) {
+                toggleBtn.classList.add('brush-active');
+                if (valueGroup) { valueGroup.style.display = 'inline-flex'; }
+                document.querySelector('.att-wrapper')?.classList.add('brush-mode');
+            } else {
+                toggleBtn.classList.remove('brush-active');
+                if (valueGroup) { valueGroup.style.display = 'none'; }
+                document.querySelector('.att-wrapper')?.classList.remove('brush-mode');
+            }
+        });
+
+        // Nút chọn giá trị cọ
+        document.querySelectorAll('.brush-val-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.brush-val-btn').forEach(b => b.classList.remove('brush-val-selected'));
+                btn.classList.add('brush-val-selected');
+                brushValue = parseFloat(btn.dataset.val);
+            });
+        });
+
+        // mouseup ở bất kỳ đâu → dừng quét
+        document.addEventListener('mouseup', () => { isBrushing = false; });
+    }
+
+    /* ---- Lock / Unlock ---- */
+
+    /** Áp dụng trạng thái khóa/mở khóa lên DOM */
+    function applyLockState() {
+        const wrapper = document.querySelector('.att-wrapper');
+        const btn     = $('att-btn-lock');
+        const notice  = $('att-lock-notice');
+        const batchBar  = $('batch-action-bar');
+        const brushBar  = $('brush-mode-bar');
+
+        if (isLocked) {
+            // Đang khóa
+            if (wrapper) wrapper.classList.add('att-locked');
+            if (btn) {
+                btn.classList.remove('is-unlocked');
+                btn.classList.add('is-locked');
+                btn.title = 'Bảng đang khóa – nhấn để mở khóa nhập liệu';
+                btn.innerHTML = '<i class="bi bi-lock-fill"></i> <span class="d-none d-sm-inline">Mở Khóa</span>';
+            }
+            if (notice) notice.classList.add('notice-visible');
+            // Ẩn batch bar và brush bar khi khóa
+            if (batchBar) batchBar.classList.remove('bar-visible');
+            if (brushBar) brushBar.style.display = 'none';
+            // Tắt chế độ cọ nếu đang bật
+            if (brushActive) {
+                brushActive = false; isBrushing = false;
+                const tb = $('brush-toggle-btn'); const vg = $('brush-value-group');
+                if (tb) tb.classList.remove('brush-active');
+                if (vg) vg.style.display = 'none';
+                document.querySelector('.att-wrapper')?.classList.remove('brush-mode');
+            }
+        } else {
+            // Đang mở khóa
+            if (wrapper) wrapper.classList.remove('att-locked');
+            if (btn) {
+                btn.classList.remove('is-locked');
+                btn.classList.add('is-unlocked');
+                btn.title = 'Bảng đang mở – nhấn để khóa lại';
+                btn.innerHTML = '<i class="bi bi-unlock-fill"></i> <span class="d-none d-sm-inline">Khóa lại</span>';
+            }
+            if (notice) notice.classList.remove('notice-visible');
+            // Hiện brush bar và cập nhật batch bar
+            if (brushBar) brushBar.style.display = '';
+            updateBatchBar();
+        }
+    }
+
+    /** Kết nối nút Khóa / Mở Khóa */
+    function setupLockButton() {
+        const btn = $('att-btn-lock');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            isLocked = !isLocked;
+            applyLockState();
+            if (!isLocked) {
+                showToast('🔓 Đã <strong>mở khóa</strong> — bạn có thể chấm công ngay bây giờ!', 'success');
+            } else {
+                clearBatchSelection();
+                showToast('🔒 Đã <strong>khóa</strong> bảng công — an toàn xem dữ liệu!', 'info');
+            }
+        });
     }
 
     function toggleCell(cell) {
+        if (isLocked) return; // Bị khóa — không cho chấm công
         const workerId = cell.dataset.id;
         const day = parseInt(cell.dataset.day);
         if (!monthData[workerId]) monthData[workerId] = {};

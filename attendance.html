@@ -143,8 +143,8 @@
                             <label class="fw-semibold small text-muted mb-0"><i class="bi bi-funnel-fill me-1 text-primary" style="font-size:.75rem"></i>Lọc</label>
                             <select id="att-status-filter" class="form-select form-select-sm" style="width:150px">
                                 <option value="all">Tất cả</option>
-                                <option value="has_work">✅ Có công</option>
-                                <option value="no_work">⬜ Không có công</option>
+                                <option value="has_work">Có công</option>
+                                <option value="no_work">Không có công</option>
                             </select>
                         </div>
                         <div class="d-flex align-items-center flex-grow-1" style="min-width:200px;">
@@ -157,6 +157,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Legend badges -->
                     <div class="d-flex gap-2 flex-nowrap align-items-center flex-shrink-0 overflow-auto py-1"
                         style="white-space: nowrap;">
                         <span class="badge px-3 py-2 text-nowrap"
@@ -173,6 +174,61 @@
                             chấm</span>
                     </div>
                 </div>
+            </div>
+
+
+            <!-- 🖌️ BRUSH MODE BAR — Chế độ cọ quét ô nhanh -->
+            <div id="brush-mode-bar" class="mb-2" style="display:none">
+                <button class="batch-btn brush-toggle-btn" id="brush-toggle-btn"
+                    title="Bật/tắt chế độ Cọ — kéo chuột qua ô để tô công nhanh">
+                    <i class="bi bi-brush-fill"></i> Cọ
+                </button>
+                <span id="brush-value-group" style="display:none;align-items:center;gap:6px">
+                    <span class="batch-divider" style="height:20px"></span>
+                    <button class="batch-btn batch-btn-full brush-val-btn brush-val-selected" id="brush-val-1"
+                        data-val="1" title="Tô 1 công cả ngày">
+                        <i class="bi bi-check-circle-fill"></i> 1 – Cả ngày
+                    </button>
+                    <button class="batch-btn batch-btn-half brush-val-btn" id="brush-val-half"
+                        data-val="0.5" title="Tô 0.5 công nửa ngày">
+                        <i class="bi bi-circle-half"></i> 0.5 – Nửa ngày
+                    </button>
+                    <button class="batch-btn batch-btn-off brush-val-btn" id="brush-val-off"
+                        data-val="0" title="Tô Nghỉ">
+                        <i class="bi bi-dash-circle-fill"></i> Nghỉ
+                    </button>
+                    <span class="batch-divider" style="height:20px"></span>
+                    <span style="font-size:.72rem;color:#94a3b8;font-weight:600;white-space:nowrap">
+                        <i class="bi bi-hand-index-thumb-fill" style="color:#fbbf24"></i> Kéo chuột qua ô để tô
+                    </span>
+                </span>
+            </div>
+
+            <!-- ✨ BATCH ACTION BAR — Thanh nhập nhanh hàng loạt -->
+            <div id="batch-action-bar" class="mb-3">
+                <span class="batch-info">
+                    <i class="bi bi-lightning-charge-fill" style="color:#fbbf24"></i>
+                    Nhập nhanh:
+                    <strong id="batch-count-workers">0</strong> công nhân ×
+                    <strong id="batch-count-days">0</strong> ngày
+                </span>
+                <div class="batch-divider"></div>
+                <button class="batch-btn batch-btn-full" id="batch-btn-full" title="Đánh 1 công (cả ngày) cho các ô đã chọn">
+                    <i class="bi bi-check-circle-fill"></i> 1 – Cả ngày
+                </button>
+                <button class="batch-btn batch-btn-half" id="batch-btn-half" title="Đánh 0.5 công (nửa ngày) cho các ô đã chọn">
+                    <i class="bi bi-circle-half"></i> 0.5 – Nửa ngày
+                </button>
+                <button class="batch-btn batch-btn-off" id="batch-btn-off" title="Đánh Nghỉ (0 công) cho các ô đã chọn">
+                    <i class="bi bi-dash-circle-fill"></i> Nghỉ
+                </button>
+                <button class="batch-btn batch-btn-clear" id="batch-btn-clear-cells" title="Xóa trắng (chưa chấm) các ô đã chọn">
+                    <i class="bi bi-eraser-fill"></i> Xóa ô
+                </button>
+                <div class="batch-divider"></div>
+                <button class="batch-btn batch-btn-cancel" id="batch-btn-cancel" title="Bỏ chọn tất cả">
+                    <i class="bi bi-x-circle"></i> Bỏ chọn
+                </button>
             </div>
 
             <!-- Attendance grid card -->
@@ -199,9 +255,15 @@
                             class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap">
                             <i class="bi bi-file-earmark-pdf-fill"></i> <span class="d-none d-sm-inline">Xuất</span> PDF
                         </button>
+                        <!-- Nút Khóa / Mở Khóa nhập liệu -->
+                        <button id="att-btn-lock"
+                            class="btn btn-sm btn-warning d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap"
+                            title="Bảng đang khóa – nhấn để mở khóa nhập liệu">
+                            <i class="bi bi-lock-fill"></i> <span class="d-none d-sm-inline">Mở Khóa</span>
+                        </button>
                         <button id="att-btn-clear"
                             class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-2 px-md-3 text-nowrap">
-                            <i class="bi bi-arrow-counterclockwise"></i> <span class="d-none d-sm-inline">Xóa</span>
+                            <i class="bi bi-arrow-counterclockwise"></i> <span class="d-none d-sm-inline">Xóa bỏ</span>
                         </button>
                         <button id="att-btn-save"
                             class="btn btn-sm btn-primary d-flex align-items-center justify-content-center gap-1 px-3 text-nowrap">
@@ -218,7 +280,7 @@
                     </div>
                     <p class="text-muted small mt-3 mb-0 text-center">
                         <i class="bi bi-hand-index-thumb me-1"></i>
-                        Nhấn vào ô để chấm công. Nhấn nhiều lần: <strong>Cả ngày → Nửa ngày → Nghỉ → ...</strong>
+                        Nhấn vào ô để chấm từng ô. Hoặc <strong>tích chọn Mã NV + tích chọn Ngày</strong> → nhấn nút nhập nhanh ở trên.
                     </p>
                 </div>
             </div>

@@ -155,35 +155,91 @@
                     </div>
                 </div>
 
+                <!-- ============================================
+                     2 BẢNG: CHỦ NHÀ | CÔNG NHÂN
+                     ============================================ -->
+                <div class="row g-3 mt-1 px-2 px-md-3 pb-3">
 
-                <!-- Desktop Table -->
-                <div class="table-responsive d-none d-lg-block">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width:50px" class="text-center">#</th>
-                                <th>Nhân viên</th>
-                                <th>Ngày ứng</th>
-                                <th class="text-end">Số tiền (VNĐ)</th>
-                                <th>Số tiền bằng chữ</th>
-                                <th>Ghi chú</th>
-                                <th style="width:80px"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="adv-tbody">
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">Đang tải...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <!-- ---- BẢNG CHỦ NHÀ ---- -->
+                    <div class="col-12 col-xl-6">
+                        <div class="rounded-3 overflow-hidden border" style="border-color:#fde68a!important">
+                            <!-- Header Chủ nhà -->
+                            <div class="d-flex align-items-center justify-content-between px-3 py-2"
+                                style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-bottom:1px solid #fcd34d">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-house-fill" style="color:#92400e;font-size:1.1rem"></i>
+                                    <span class="fw-bold" style="color:#78350f;font-size:.95rem">Ứng Tiền — Chủ Nhà</span>
+                                    <span id="adv-count-owner" class="badge rounded-pill" style="background:#92400e;color:#fff;font-size:.7rem">0 phiếu</span>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted small" style="font-size:.7rem;color:#a16207!important">Tổng cộng</div>
+                                    <div id="adv-card-total-owner" class="fw-bold" style="color:#92400e;font-size:1.1rem">0 VNĐ</div>
+                                </div>
+                            </div>
+                            <!-- Table Chủ nhà (Desktop) -->
+                            <div class="table-responsive d-none d-lg-block">
+                                <table class="table table-hover align-middle mb-0" style="font-size:.88rem">
+                                    <thead>
+                                        <tr style="background:#fffbeb">
+                                            <th style="width:36px" class="text-center text-muted">#</th>
+                                            <th style="color:#78350f">Họ tên</th>
+                                            <th style="color:#78350f">Ngày ứng</th>
+                                            <th class="text-end" style="color:#78350f">Số tiền</th>
+                                            <th style="color:#78350f">Ghi chú</th>
+                                            <th style="width:72px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adv-tbody-owner">
+                                        <tr><td colspan="6" class="text-center text-muted py-4">Đang tải...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Mobile Chủ nhà -->
+                            <div id="adv-mobile-owner" class="d-lg-none p-2" style="background:#fffbeb;min-height:80px"></div>
+                        </div>
+                    </div>
 
-                <!-- Mobile List -->
-                <div id="adv-mobile-list" class="d-lg-none d-flex flex-column p-2 p-md-3"
-                    style="background-color: #f8fafb; min-height: 200px;">
-                    <div class="text-center text-muted py-4">Đang tải...</div>
-                </div>
-            </div>
+                    <!-- ---- BẢNG CÔNG NHÂN ---- -->
+                    <div class="col-12 col-xl-6">
+                        <div class="rounded-3 overflow-hidden border" style="border-color:#bfdbfe!important">
+                            <!-- Header Công nhân -->
+                            <div class="d-flex align-items-center justify-content-between px-3 py-2"
+                                style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-bottom:1px solid #93c5fd">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-people-fill" style="color:#1d4ed8;font-size:1.1rem"></i>
+                                    <span class="fw-bold" style="color:#1e3a8a;font-size:.95rem">Ứng Tiền — Công Nhân</span>
+                                    <span id="adv-count-worker" class="badge rounded-pill" style="background:#1d4ed8;color:#fff;font-size:.7rem">0 phiếu</span>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted small" style="font-size:.7rem;color:#2563eb!important">Tổng cộng</div>
+                                    <div id="adv-card-total-worker" class="fw-bold text-danger" style="font-size:1.1rem">0 VNĐ</div>
+                                </div>
+                            </div>
+                            <!-- Table Công nhân (Desktop) -->
+                            <div class="table-responsive d-none d-lg-block">
+                                <table class="table table-hover align-middle mb-0" style="font-size:.88rem">
+                                    <thead>
+                                        <tr style="background:#eff6ff">
+                                            <th style="width:36px" class="text-center text-muted">#</th>
+                                            <th style="color:#1e3a8a">Họ tên</th>
+                                            <th style="color:#1e3a8a">Ngày ứng</th>
+                                            <th class="text-end" style="color:#1e3a8a">Số tiền</th>
+                                            <th style="color:#1e3a8a">Ghi chú</th>
+                                            <th style="width:72px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adv-tbody-worker">
+                                        <tr><td colspan="6" class="text-center text-muted py-4">Đang tải...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Mobile Công nhân -->
+                            <div id="adv-mobile-worker" class="d-lg-none p-2" style="background:#eff6ff;min-height:80px"></div>
+                        </div>
+                    </div>
+
+                </div><!-- /row -->
+            </div><!-- /card -->
         </section>
 
     </div><!-- /main-content -->
