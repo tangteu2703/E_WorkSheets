@@ -49,6 +49,8 @@ const AttendanceModule = (() => {
         load(currentYear, currentMonth, currentIsLeap);
         // Áp dụng trạng thái khóa ngay sau khi render xong
         applyLockState();
+        // Khởi tạo guard cảnh báo chưa lưu
+        setupUnsavedGuard();
     }
 
 
@@ -638,6 +640,53 @@ const AttendanceModule = (() => {
         });
     }
 
+    /* ---- Unsaved Changes Guard ---- */
+    let _pendingNavHref = null;
+
+    /**
+     * Thiết lập bảo vệ dữ liệu chưa lưu:
+     * 1. beforeunload — cảnh báo khi đóng/reload tab.
+     * 2. Chặn click các nav-link sidebar — hỏi xác nhận trước khi rời trang.
+     */
+    function setupUnsavedGuard() {
+        // 1. Cảnh báo khi đóng/reload tab
+        window.addEventListener('beforeunload', (e) => {
+            if (hasChanges) {
+                e.preventDefault();
+                e.returnValue = 'Bạn có dữ liệu chưa lưu! Thoát sẽ mất toàn bộ công vừa chấm.';
+            }
+        });
+
+        // 2. Chặn click các nav-link trong sidebar
+        document.querySelectorAll('#sidebar a.nav-link-tc').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (!hasChanges) return; // Không có thay đổi → cho qua bình thường
+                const href = link.getAttribute('href');
+                if (!href || href === '#' || href === 'attendance.html') return;
+
+                e.preventDefault();
+                _pendingNavHref = href;
+
+                // Capture href vào closure riêng để tránh race condition
+                const targetHref = href;
+                showConfirm(
+                    '💾',
+                    'Lưu Bảng trước khi rời trang?',
+                    'Bạn có dữ liệu chấm công <strong>chưa lưu</strong>!<br>Nếu rời trang ngay, toàn bộ công vừa chấm sẽ <span style="color:#dc2626">bị mất</span>.<br><br>Nhấn <strong>Lưu & Rời trang</strong> để lưu trước khi đi.',
+                    () => {
+                        // Lưu ngay rồi chuyển trang
+                        const storageMonthKey = currentIsLeap ? (currentMonth + 100) : currentMonth;
+                        StorageManager.saveMonthAttendance(currentYear, storageMonthKey, monthData);
+                        hasChanges = false;
+                        window.location.href = targetHref;
+                    },
+                    { confirmLabel: 'Lưu & Rời trang', cancelLabel: 'Ở lại', dangerBtn: false,
+                      extraBtn: { label: 'Rời trang (không lưu)', onClick: () => { window.location.href = targetHref; } } }
+                );
+            });
+        });
+    }
+
     function toggleCell(cell) {
         if (isLocked) return; // Bị khóa — không cho chấm công
         const workerId = cell.dataset.id;
@@ -703,6 +752,7 @@ const AttendanceModule = (() => {
                 const storageMonthKey = currentIsLeap ? (currentMonth + 100) : currentMonth;
                 StorageManager.saveMonthAttendance(currentYear, storageMonthKey, monthData);
                 hasChanges = false;
+                _pendingNavHref = null; // Reset pending nav sau khi lưu thành công
                 showToast(`Đã lưu bảng công Tháng ${currentMonth}${leapStr}/${currentYear} ÂL!`, 'success');
             }
         );

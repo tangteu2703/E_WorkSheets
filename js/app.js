@@ -21,14 +21,71 @@ function showToast(msg, type = 'info') {
    CONFIRM DIALOG
    ============================================================ */
 let _confirmCallback = null;
-function showConfirm(icon, title, msg, onOk) {
+/**
+ * Hiển thị hộp thoại xác nhận.
+ * @param {string} icon
+ * @param {string} title
+ * @param {string} msg
+ * @param {Function} onOk - Callback khi nhấn nút xác nhận chính
+ * @param {Object} [opts] - Tùy chọn mở rộng:
+ *   opts.confirmLabel  {string}  Nhãn nút xác nhận (mặc định: 'Xác nhận')
+ *   opts.cancelLabel   {string}  Nhãn nút hủy     (mặc định: 'Hủy')
+ *   opts.dangerBtn     {boolean} Nút chính màu đỏ (mặc định: true)
+ *   opts.extraBtn      {Object}  Nút phụ: { label, onClick } hoặc { label, href }
+ */
+function showConfirm(icon, title, msg, onOk, opts = {}) {
     _confirmCallback = onOk;
+
     const confirmIcon = document.getElementById('confirm-icon');
     if (confirmIcon) confirmIcon.textContent = icon;
     const confirmTitle = document.getElementById('confirm-title');
     if (confirmTitle) confirmTitle.textContent = title;
     const confirmMsg = document.getElementById('confirm-msg');
     if (confirmMsg) confirmMsg.innerHTML = msg;
+
+    // Cập nhật nút chính (Xác nhận)
+    const confirmOkBtn = document.getElementById('confirm-ok');
+    if (confirmOkBtn) {
+        confirmOkBtn.textContent = opts.confirmLabel || 'Xác nhận';
+        confirmOkBtn.className = 'btn btn-sm px-3 w-100 text-nowrap';
+        confirmOkBtn.classList.add((opts.dangerBtn === false) ? 'btn-primary' : 'btn-danger');
+    }
+
+    // Cập nhật nút Hủy
+    const cancelBtn = document.querySelector('#confirm-modal [data-bs-dismiss="modal"]');
+    if (cancelBtn) {
+        cancelBtn.textContent = opts.cancelLabel || 'Hủy';
+        cancelBtn.className = 'btn btn-sm btn-outline-secondary px-3 w-100 text-nowrap';
+    }
+
+    // Đổi layout container sang flex-column khi có extraBtn, flex-row khi không
+    const btnArea = document.querySelector('#confirm-modal .confirm-btn-area');
+    // Thêm/xóa nút phụ (rời trang không lưu)
+    const extraBtnId = 'confirm-extra-btn';
+    let extraEl = document.getElementById(extraBtnId);
+    if (opts.extraBtn) {
+        if (!extraEl) {
+            extraEl = document.createElement('button');
+            extraEl.id = extraBtnId;
+            extraEl.className = 'btn btn-sm btn-outline-danger px-3 w-100 text-nowrap';
+            // Chèn vào đầu btnArea (trước nút Hủy)
+            if (btnArea) btnArea.insertBefore(extraEl, btnArea.firstChild);
+        }
+        extraEl.textContent = opts.extraBtn.label || 'Tiếp tục';
+        extraEl.onclick = () => {
+            const confirmModalEl = document.getElementById('confirm-modal');
+            if (confirmModalEl) bootstrap.Modal.getInstance(confirmModalEl)?.hide();
+            if (opts.extraBtn.onClick) opts.extraBtn.onClick();
+            else if (opts.extraBtn.href) window.location.href = opts.extraBtn.href;
+        };
+        extraEl.style.display = '';
+        if (btnArea) btnArea.className = 'confirm-btn-area d-flex flex-column gap-2';
+    } else {
+        if (extraEl) extraEl.style.display = 'none';
+        // Khôi phục layout ngang khi không có extraBtn
+        if (btnArea) btnArea.className = 'confirm-btn-area d-flex flex-row gap-2 justify-content-center';
+    }
+
     const confirmModalEl = document.getElementById('confirm-modal');
     if (confirmModalEl) new bootstrap.Modal(confirmModalEl).show();
 }
@@ -37,11 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confirmOkBtn) {
         confirmOkBtn.addEventListener('click', () => {
             const confirmModalEl = document.getElementById('confirm-modal');
-            if (confirmModalEl) bootstrap.Modal.getInstance(confirmModalEl).hide();
+            if (confirmModalEl) bootstrap.Modal.getInstance(confirmModalEl)?.hide();
             if (_confirmCallback) _confirmCallback();
         });
     }
 });
+
 
 /* ============================================================
    NAVIGATION
